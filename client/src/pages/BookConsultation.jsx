@@ -30,7 +30,7 @@ export default function BookConsultation() {
       college: '',
       email: user?.email || '',
       projectDescription: tier ? `Interested in the ${decodeURIComponent(tier)} plan. ` : '',
-      hasReferral: !!urlRef,
+      hasReferral: false,
       referralCode: urlRef.toUpperCase()
     });
   }, [user, searchParams]);
