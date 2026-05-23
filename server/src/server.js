@@ -65,13 +65,14 @@ app.use((err, req, res, next) => {
 
 // Run server on 127.0.0.1 for secure local testing (avoid 0.0.0.0), but use 0.0.0.0 for Render (production)
 const PORT = process.env.PORT || 5000;
-const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
+const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production';
+const HOST = isRender ? '0.0.0.0' : '127.0.0.1';
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on http://${HOST}:${PORT}`);
 
   // Self-ping to prevent Render free tier from spinning down (runs only in production)
-  if (process.env.NODE_ENV === 'production' && process.env.RENDER_EXTERNAL_URL) {
+  if (isRender && process.env.RENDER_EXTERNAL_URL) {
     const PING_INTERVAL_MS = 14 * 60 * 1000; // 14 minutes
     setInterval(() => {
       const url = `${process.env.RENDER_EXTERNAL_URL}/health`;
