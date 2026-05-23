@@ -17,15 +17,16 @@ export const getSecret = (keyName) => {
 
 export const generateAccessToken = (userId) => {
   return jwt.sign({ id: userId }, getSecret('JWT_SECRET'), {
-    expiresIn: '15m' // Short-lived access token
+    expiresIn: '1h' // 1 hour — reduced refresh frequency vs 15min
   });
 };
 
 export const generateRefreshToken = (userId) => {
   return jwt.sign({ id: userId }, getSecret('JWT_REFRESH_SECRET'), {
-    expiresIn: '7d' // Long-lived refresh token
+    expiresIn: '30d' // Long-lived refresh token — 30 days
   });
 };
+
 
 export const protect = async (req, res, next) => {
   let token;
@@ -56,4 +57,15 @@ export const protect = async (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: 'Not authorized, no token provided.' });
   }
+};
+
+export const authorizeRoles = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: `Role (${req.user?.role || 'none'}) is not authorized to access this resource.` 
+      });
+    }
+    next();
+  };
 };

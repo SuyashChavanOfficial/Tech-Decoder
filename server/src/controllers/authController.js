@@ -23,14 +23,14 @@ const parseCookies = (req) => {
 
 // Set refresh token in HTTP-only cookie
 const setRefreshTokenCookie = (res, token) => {
-  const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+  const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days — matches JWT expiry
   const isProduction = process.env.NODE_ENV === 'production';
   res.cookie('refreshToken', token, {
     httpOnly: true,
-    secure: isProduction,           // HTTPS only in prod
+    secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-origin on Render
     maxAge: maxAge,
-    path: '/api/auth/refresh' // Limit path visibility for security
+    path: '/api/auth/refresh'
   });
 };
 
@@ -79,6 +79,7 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         domain: user.domain,
         avatar: user.avatar,
         modulesCompleted: user.modulesCompleted,
@@ -129,6 +130,7 @@ export const loginUser = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       domain: user.domain,
       avatar: user.avatar,
       modulesCompleted: user.modulesCompleted,
@@ -256,6 +258,7 @@ export const updateUserProgress = async (req, res) => {
       _id: updatedUser._id,
       name: updatedUser.name,
       email: updatedUser.email,
+      role: updatedUser.role,
       domain: updatedUser.domain,
       avatar: updatedUser.avatar,
       modulesCompleted: updatedUser.modulesCompleted,
@@ -321,6 +324,7 @@ export const googleLogin = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       domain: user.domain,
       avatar: user.avatar,
       modulesCompleted: user.modulesCompleted,
