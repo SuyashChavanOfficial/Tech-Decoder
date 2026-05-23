@@ -13,7 +13,7 @@ export default function Referral() {
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  const referralLink = referralCode ? `${BASE_URL}/register?ref=${referralCode}` : null;
+  const referralLink = referralCode ? `${BASE_URL}/?ref=${referralCode}` : null;
 
   const handleCopyCode = () => {
     if (!referralCode) return;

@@ -29,6 +29,14 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   }, [location]);
 
+  // Automatically open consultation modal if referral code is in URL search params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('ref')) {
+      setConsultationOpen(true);
+    }
+  }, [location.search]);
+
   const handleLogoClick = (e) => {
     e.preventDefault();
     navigate('/');

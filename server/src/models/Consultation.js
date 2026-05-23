@@ -2,9 +2,11 @@ import mongoose from 'mongoose';
 
 const consultationSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true },
-  timeSlot: { type: String, required: true },
-  notes: { type: String }
+  whatsapp: { type: String, required: true },
+  college: { type: String, required: true },
+  email: { type: String, default: '' },
+  projectDescription: { type: String, default: '' },
+  referralCode: { type: String, default: '' }
 }, {
   timestamps: true
 });
