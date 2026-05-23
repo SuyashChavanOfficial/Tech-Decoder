@@ -235,7 +235,7 @@ export const AuthProvider = ({ children }) => {
         checklist: user ? user.checklist : localChecklist,
         uploadedFiles: user ? user.uploadedFiles : localFiles,
         referrals: user ? user.referrals : localReferrals,
-        referralCode: user ? user.referralCode : 'ARCH-7X9P-V2',
+        referralCode: user ? user.referralCode : null,
         progressPercentage,
         login,
         logout,
