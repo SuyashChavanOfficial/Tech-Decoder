@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
@@ -8,8 +8,9 @@ import Modal from '../components/Modal';
 export default function Login() {
   const { login, register, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
-
-  // Mode: 'signin' or 'signup'
+  const location = useLocation();
+  
+  const from = location.state?.from || '/dashboard';
   const [authMode, setAuthMode] = useState('signin');
   
   // Auth Form Fields
@@ -28,11 +29,11 @@ export default function Login() {
       const result = await login(authEmail, authPassword);
       if (result.success) {
         setAlertTitle('Welcome Back');
-        setAlertMessage('Authentication successful! Loading your dashboard...');
+        setAlertMessage('Authentication successful! Loading your session...');
         setAlertOpen(true);
         setTimeout(() => {
           setAlertOpen(false);
-          navigate('/dashboard');
+          navigate(from);
         }, 1500);
       } else {
         setAlertTitle('Error');
@@ -43,11 +44,11 @@ export default function Login() {
       const result = await register(authName, authEmail, authPassword);
       if (result.success) {
         setAlertTitle('Account Created');
-        setAlertMessage('Your account was created successfully! Launching dashboard...');
+        setAlertMessage('Your account was created successfully! Loading your session...');
         setAlertOpen(true);
         setTimeout(() => {
           setAlertOpen(false);
-          navigate('/dashboard');
+          navigate(from);
         }, 1500);
       } else {
         setAlertTitle('Error');
@@ -93,10 +94,10 @@ export default function Login() {
                     
                     const result = await loginWithGoogle(credentialResponse.credential);
                     if (result.success) {
-                      setAlertMessage('Authentication successful! Loading your dashboard...');
+                      setAlertMessage('Authentication successful! Loading your session...');
                       setTimeout(() => {
                         setAlertOpen(false);
-                        navigate('/dashboard');
+                        navigate(from);
                       }, 1500);
                     } else {
                       setAlertTitle('Error');

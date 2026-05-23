@@ -5,7 +5,6 @@ import Modal from '../components/Modal';
 
 export default function Home() {
   const navigate = useNavigate();
-  const [consultationOpen, setConsultationOpen] = useState(false);
 
   const domains = [
     { name: 'Web Dev', icon: 'language', color: 'text-primary' },
@@ -93,7 +92,7 @@ export default function Home() {
                   <span className="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
                 <button 
-                  onClick={() => setConsultationOpen(true)}
+                  onClick={() => navigate('/book')}
                   className="glass-panel text-on-surface px-8 py-4 rounded-xl font-label-sm text-label-sm uppercase tracking-wider hover:bg-surface-container-high transition-colors flex justify-center items-center card-interactive cursor-pointer"
                 >
                   Book Free Consultation
@@ -278,7 +277,7 @@ export default function Home() {
               <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-display-xl md:text-display-xl text-on-surface mb-6">Ready to Build?</h2>
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10">Stop watching tutorials. Start engineering real solutions with industry experts guiding your every commit.</p>
               <button 
-                onClick={() => setConsultationOpen(true)}
+                onClick={() => navigate('/book')}
                 className="bg-primary text-on-primary px-10 py-5 rounded-xl font-label-sm text-label-sm uppercase tracking-wider glow-button btn-shimmer hover:opacity-90 transition-all text-lg cursor-pointer"
               >
                 Start Your Journey
@@ -287,12 +286,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      <Modal 
-        isOpen={consultationOpen} 
-        onClose={() => setConsultationOpen(false)} 
-        type="consultation"
-      />
     </>
   );
 }

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import Modal from '../components/Modal';
 
 export default function Pricing() {
-  const [consultationOpen, setConsultationOpen] = useState(false);
+  const navigate = useNavigate();
   const [activeTier, setActiveTier] = useState(null);
 
   const tiers = [
@@ -57,7 +57,7 @@ export default function Pricing() {
 
   const handleBook = (tier) => {
     setActiveTier(tier);
-    setConsultationOpen(true);
+    navigate(`/book?tier=${encodeURIComponent(tier)}`);
   };
 
   return (
@@ -136,12 +136,6 @@ export default function Pricing() {
           ))}
         </section>
       </main>
-
-      <Modal 
-        isOpen={consultationOpen} 
-        onClose={() => setConsultationOpen(false)} 
-        type="consultation"
-      />
     </>
   );
 }

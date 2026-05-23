@@ -9,7 +9,6 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [consultationOpen, setConsultationOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,13 +29,15 @@ export default function Navbar() {
     setMobileMenuOpen(false);
   }, [location]);
 
-  // Automatically open consultation modal if referral code is in URL search params
+  // Automatically store referral code and redirect to dedicated booking page
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get('ref')) {
-      setConsultationOpen(true);
+    const ref = params.get('ref');
+    if (ref) {
+      sessionStorage.setItem('referralCode', ref);
+      navigate(`/book?ref=${ref}`, { replace: true });
     }
-  }, [location.search]);
+  }, [location.search, navigate]);
 
   const handleLogoClick = (e) => {
     e.preventDefault();
@@ -157,16 +158,17 @@ export default function Navbar() {
               <>
                 <Link 
                   to="/login" 
+                  state={{ from: location.pathname }}
                   className="text-on-surface-variant hover:text-on-surface transition-colors font-label-sm text-label-sm uppercase tracking-wider"
                 >
                   Login
                 </Link>
-                <button 
-                  onClick={() => setConsultationOpen(true)}
-                  className="bg-primary text-on-primary px-6 py-2 rounded-lg font-label-sm text-label-sm uppercase tracking-wider glow-button btn-shimmer hover:opacity-90 transition-all active:scale-95"
+                <Link 
+                  to="/book"
+                  className="bg-primary text-on-primary px-6 py-2 rounded-lg font-label-sm text-label-sm uppercase tracking-wider glow-button btn-shimmer hover:opacity-90 transition-all active:scale-95 text-center flex items-center justify-center"
                 >
                   Get Started
-                </button>
+                </Link>
               </>
             )}
           </div>
@@ -190,8 +192,9 @@ export default function Navbar() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="md:hidden bg-[#13161e]/98 border-t border-b border-white/10 w-full absolute top-20 left-0 p-6 flex flex-col space-y-4 shadow-2xl overflow-hidden origin-top z-50"
+              className="md:hidden bg-[#13161e]/98 border-t border-b border-white/10 w-full absolute top-20 left-0 shadow-2xl overflow-hidden origin-top z-50"
             >
+              <div className="p-6 flex flex-col space-y-4">
             <NavLink 
               to="/" 
               className={({ isActive }) => 
@@ -254,30 +257,26 @@ export default function Navbar() {
                 <>
                   <Link 
                     to="/login" 
+                    state={{ from: location.pathname }}
                     className="w-full py-3 rounded-lg border border-white/10 text-on-surface hover:bg-white/5 text-center font-label-sm text-label-sm uppercase tracking-wider"
                   >
                     Login
                   </Link>
-                  <button 
-                    onClick={() => setConsultationOpen(true)}
-                    className="w-full bg-primary text-on-primary py-3 rounded-lg text-center font-label-sm text-label-sm uppercase tracking-wider glow-button btn-shimmer"
+                  <Link 
+                    to="/book"
+                    className="w-full bg-primary text-on-primary py-3 rounded-lg text-center font-label-sm text-label-sm uppercase tracking-wider glow-button btn-shimmer block"
                   >
                     Get Started
-                  </button>
+                  </Link>
                 </>
               )}
+            </div>
             </div>
             </motion.div>
           )}
         </AnimatePresence>
       </nav>
 
-      {/* Free Consultation Modal */}
-      <Modal 
-        isOpen={consultationOpen} 
-        onClose={() => setConsultationOpen(false)} 
-        type="consultation"
-      />
     </>
   );
 }

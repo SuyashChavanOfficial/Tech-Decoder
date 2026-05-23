@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Modal from '../components/Modal';
 
 export default function About() {
-  const [consultationOpen, setConsultationOpen] = useState(false);
+  const navigate = useNavigate();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -65,7 +65,7 @@ export default function About() {
               className="flex justify-center gap-4"
             >
               <button 
-                onClick={() => setConsultationOpen(true)}
+                onClick={() => navigate('/book')}
                 className="bg-primary text-on-primary font-body-md text-body-md px-8 py-3 rounded glow-primary hover:opacity-90 transition-all cursor-pointer"
               >
                 Explore Mentors
@@ -221,12 +221,6 @@ export default function About() {
           </div>
         </section>
       </main>
-
-      <Modal 
-        isOpen={consultationOpen} 
-        onClose={() => setConsultationOpen(false)} 
-        type="consultation"
-      />
     </>
   );
 }

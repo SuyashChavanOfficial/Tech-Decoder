@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 // Build the full referral URL for sharing
@@ -10,6 +10,7 @@ const BASE_URL = import.meta.env.MODE === 'development'
 
 export default function Referral() {
   const { user, loading, referralCode, referrals, setReferrals } = useAuth();
+  const location = useLocation();
   const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -240,13 +241,14 @@ Use my referral link to get an additional discount \u{1F447}
                 <div className="flex flex-col sm:flex-row gap-3 w-full">
                   <Link
                     to="/login"
-                    state={{ tab: 'register' }}
+                    state={{ from: location.pathname, tab: 'register' }}
                     className="flex-1 bg-primary text-on-primary py-3 rounded-lg font-label-sm text-label-sm uppercase tracking-wider text-center glow-button btn-shimmer hover:opacity-90 transition-all active:scale-95"
                   >
                     Register for Free
                   </Link>
                   <Link
                     to="/login"
+                    state={{ from: location.pathname }}
                     className="flex-1 py-3 rounded-lg border border-white/10 text-on-surface-variant hover:text-on-surface hover:bg-white/5 font-label-sm text-label-sm uppercase tracking-wider text-center transition-all"
                   >
                     Login
