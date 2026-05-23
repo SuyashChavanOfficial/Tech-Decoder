@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Modal from './Modal';
+import logo from '../assets/logo.png';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -61,9 +62,10 @@ export default function Navbar() {
           <a 
             href="/"
             onClick={handleLogoClick}
-            className="font-headline-md text-headline-md text-primary tracking-tighter cursor-pointer hover:opacity-90"
+            className="flex items-center space-x-2 font-headline-md text-headline-md text-primary tracking-tighter cursor-pointer hover:opacity-90"
           >
-            Tech Decoder
+            <img src={logo} alt="Tech Decoder Logo" className="h-8 w-auto object-contain" />
+            <span className="hidden md:inline">Tech Decoder</span>
           </a>
 
           {/* Desktop Navigation Links */}
