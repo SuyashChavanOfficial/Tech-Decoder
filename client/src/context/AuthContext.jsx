@@ -163,6 +163,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const setReferrals = (val) => {
+    if (!user) return;
     const newVal = typeof val === 'function' ? val(user.referrals) : val;
     setUser(prev => ({ ...prev, referrals: newVal }));
     syncProgress({ referrals: newVal });

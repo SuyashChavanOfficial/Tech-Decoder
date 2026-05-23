@@ -26,7 +26,7 @@ export default function Dashboard() {
 
   // Protect route
   if (!user) {
-    return <Navigate to="/contact" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   // Handle Drag Over
@@ -220,11 +220,11 @@ export default function Dashboard() {
                 </div>
                 <div className="space-y-4 mb-6">
                   {checklist.map(item => (
-                    <label key={item.id} className="flex items-start space-x-3 group cursor-pointer select-none">
+                    <label key={item.id || item._id} className="flex items-start space-x-3 group cursor-pointer select-none">
                       <input 
                         type="checkbox" 
                         checked={item.checked}
-                        onChange={() => toggleChecklist(item.id)}
+                        onChange={() => toggleChecklist(item.id || item._id)}
                         className="mt-1 rounded border-outline bg-surface-dim text-primary focus:ring-primary focus:ring-offset-surface cursor-pointer w-4 h-4"
                       />
                       <div>
@@ -285,8 +285,8 @@ export default function Dashboard() {
                 <div className="glass-panel rounded-xl p-6 border border-white/10 space-y-3">
                   <h4 className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Uploaded Documents ({uploadedFiles.length})</h4>
                   <div className="space-y-2">
-                    {uploadedFiles.map(file => (
-                      <div key={file.id} className="flex justify-between items-center bg-surface-container-low border border-white/5 p-3 rounded text-sm">
+                    {uploadedFiles.map((file, idx) => (
+                      <div key={file.id || file._id || idx} className="flex justify-between items-center bg-surface-container-low border border-white/5 p-3 rounded text-sm">
                         <div className="flex items-center space-x-2">
                           <span className="material-symbols-outlined text-primary text-[20px]">description</span>
                           <span className="text-on-surface truncate max-w-[200px]" title={file.name}>{file.name}</span>

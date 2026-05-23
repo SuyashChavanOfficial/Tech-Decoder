@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import User from '../models/User.js';
 
 // Secure Fallback Pattern: Generate ephemeral keys if not set in environment
-const getSecret = (keyName) => {
+export const getSecret = (keyName) => {
   if (process.env[keyName]) {
     return process.env[keyName];
   }

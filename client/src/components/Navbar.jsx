@@ -131,7 +131,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link 
-                  to="/contact" 
+                  to="/login" 
                   className="text-on-surface-variant hover:text-on-surface transition-colors font-label-sm text-label-sm uppercase tracking-wider"
                 >
                   Login
@@ -221,7 +221,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <Link 
-                    to="/contact" 
+                    to="/login" 
                     className="w-full py-3 rounded-lg border border-white/10 text-on-surface hover:bg-white/5 text-center font-label-sm text-label-sm uppercase tracking-wider"
                   >
                     Login

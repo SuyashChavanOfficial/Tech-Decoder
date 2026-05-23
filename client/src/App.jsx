@@ -14,6 +14,7 @@ import Pricing from './pages/Pricing';
 import Referral from './pages/Referral';
 import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
 
 function AppContent() {
   const { loading } = useAuth();
@@ -47,6 +48,7 @@ function AppContent() {
         <Route path="/referral" element={<Referral />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
 
       <Footer />

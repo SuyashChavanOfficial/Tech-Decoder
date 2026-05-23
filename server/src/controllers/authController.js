@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import { generateAccessToken, generateRefreshToken } from '../middleware/authMiddleware.js';
+import { generateAccessToken, generateRefreshToken, getSecret } from '../middleware/authMiddleware.js';
 
 // Helper to parse cookies from request headers
 const parseCookies = (req) => {
@@ -186,7 +187,7 @@ export const refreshAccessToken = async (req, res) => {
 
     // Verify token
     try {
-      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || global.JWT_REFRESH_SECRET);
+      const decoded = jwt.verify(token, getSecret('JWT_REFRESH_SECRET'));
       
       // Token is valid: rotate token
       const newAccessToken = generateAccessToken(user._id);

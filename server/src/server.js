@@ -21,7 +21,10 @@ const app = express();
 app.use(helmet()); // Secure HTTP headers to avoid standard attacks
 
 // Configure CORS securely
-const allowedOrigins = [process.env.CLIENT_URL || 'http://localhost:5173'];
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'http://localhost:5173',
+  'http://127.0.0.1:5173'
+];
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
