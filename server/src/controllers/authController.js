@@ -24,10 +24,11 @@ const parseCookies = (req) => {
 // Set refresh token in HTTP-only cookie
 const setRefreshTokenCookie = (res, token) => {
   const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+  const isProduction = process.env.NODE_ENV === 'production';
   res.cookie('refreshToken', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // true in prod
-    sameSite: 'lax',
+    secure: isProduction,           // HTTPS only in prod
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-origin on Render
     maxAge: maxAge,
     path: '/api/auth/refresh' // Limit path visibility for security
   });
@@ -160,7 +161,9 @@ export const logoutUser = async (req, res) => {
     // Clear refresh cookie
     res.clearCookie('refreshToken', {
       path: '/api/auth/refresh',
-      httpOnly: true
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     });
 
     res.json({ message: 'Logged out successfully.' });
@@ -203,7 +206,12 @@ export const refreshAccessToken = async (req, res) => {
       // Token expired or invalid
       user.refreshToken = '';
       await user.save();
-      res.clearCookie('refreshToken', { path: '/api/auth/refresh', httpOnly: true });
+      res.clearCookie('refreshToken', { 
+        path: '/api/auth/refresh', 
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      });
       return res.status(401).json({ message: 'Refresh token expired or invalid.' });
     }
   } catch (error) {

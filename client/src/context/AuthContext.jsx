@@ -5,8 +5,10 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+// In development, use '' (empty) so Vite proxy handles /api/* same-origin
+// In production, use the full Render backend URL
 const BACKEND_URL = import.meta.env.MODE === 'development' 
-  ? 'http://127.0.0.1:5000' 
+  ? '' 
   : 'https://tech-decoder-backend.onrender.com';
 
 const API = axios.create({
