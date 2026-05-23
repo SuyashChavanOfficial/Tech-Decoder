@@ -1,4 +1,5 @@
 import express from 'express';
+import https from 'https';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
@@ -46,6 +47,11 @@ app.use(cors({
 // Body Parsers
 app.use(express.json({ limit: '10kb' })); // Mitigate DoS by restricting request body size
 
+// Health check endpoint (used for self-ping to keep Render free instance alive)
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/inquiries', inquiryRoutes);
@@ -63,5 +69,19 @@ const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on http://${HOST}:${PORT}`);
+
+  // Self-ping to prevent Render free tier from spinning down (runs only in production)
+  if (process.env.NODE_ENV === 'production' && process.env.RENDER_EXTERNAL_URL) {
+    const PING_INTERVAL_MS = 14 * 60 * 1000; // 14 minutes
+    setInterval(() => {
+      const url = `${process.env.RENDER_EXTERNAL_URL}/health`;
+      https.get(url, (res) => {
+        console.log(`[Keep-Alive] Pinged ${url} — status: ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.warn(`[Keep-Alive] Ping failed: ${err.message}`);
+      });
+    }, PING_INTERVAL_MS);
+    console.log('[Keep-Alive] Self-ping scheduler started.');
+  }
 });
 export default server;
