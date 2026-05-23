@@ -10,10 +10,21 @@ const API = axios.create({
   withCredentials: true
 });
 
+const defaultChecklist = [
+  { id: 'mock-1', text: 'Review System Architecture Diagram', checked: true },
+  { id: 'mock-2', text: 'Prepare answers for DB scaling strategies', checked: false },
+  { id: 'mock-3', text: 'Dry run presentation with mentor', checked: false }
+];
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Fallbacks for anonymous user
+  const [localChecklist, setLocalChecklist] = useState(defaultChecklist);
+  const [localFiles, setLocalFiles] = useState([]);
+  const [localReferrals, setLocalReferrals] = useState(4);
 
   // Sync token to API headers
   useEffect(() => {
@@ -122,26 +133,42 @@ export const AuthProvider = ({ children }) => {
   };
 
   const toggleChecklist = (id) => {
-    const updatedChecklist = user.checklist.map(item => 
-      item._id === id || item.id === id ? { ...item, checked: !item.checked } : item
-    );
-    setUser(prev => ({ ...prev, checklist: updatedChecklist }));
-    syncProgress({ checklist: updatedChecklist });
+    if (user) {
+      const updatedChecklist = user.checklist.map(item => 
+        item._id === id || item.id === id ? { ...item, checked: !item.checked } : item
+      );
+      setUser(prev => ({ ...prev, checklist: updatedChecklist }));
+      syncProgress({ checklist: updatedChecklist });
+    } else {
+      setLocalChecklist(prev => prev.map(item => 
+        item.id === id || item._id === id ? { ...item, checked: !item.checked } : item
+      ));
+    }
   };
 
   const addChecklistItem = (text) => {
     if (!text.trim()) return;
     const newItem = { text, checked: false };
-    const updatedChecklist = [...user.checklist, newItem];
-    setUser(prev => ({ ...prev, checklist: updatedChecklist }));
-    syncProgress({ checklist: updatedChecklist });
+    if (user) {
+      const updatedChecklist = [...user.checklist, newItem];
+      setUser(prev => ({ ...prev, checklist: updatedChecklist }));
+      syncProgress({ checklist: updatedChecklist });
+    } else {
+      const mockItem = { id: `mock-${Date.now()}`, ...newItem };
+      setLocalChecklist(prev => [...prev, mockItem]);
+    }
   };
 
   const uploadFile = (fileName, fileSize) => {
     const newFile = { name: fileName, size: fileSize, date: new Date().toLocaleDateString() };
-    const updatedFiles = [...user.uploadedFiles, newFile];
-    setUser(prev => ({ ...prev, uploadedFiles: updatedFiles }));
-    syncProgress({ uploadedFiles: updatedFiles });
+    if (user) {
+      const updatedFiles = [...user.uploadedFiles, newFile];
+      setUser(prev => ({ ...prev, uploadedFiles: updatedFiles }));
+      syncProgress({ uploadedFiles: updatedFiles });
+    } else {
+      const mockFile = { id: `mock-${Date.now()}`, ...newFile };
+      setLocalFiles(prev => [...prev, mockFile]);
+    }
   };
 
   const bookConsultation = async (formData) => {
@@ -163,28 +190,32 @@ export const AuthProvider = ({ children }) => {
   };
 
   const setReferrals = (val) => {
-    if (!user) return;
-    const newVal = typeof val === 'function' ? val(user.referrals) : val;
-    setUser(prev => ({ ...prev, referrals: newVal }));
-    syncProgress({ referrals: newVal });
+    if (user) {
+      const newVal = typeof val === 'function' ? val(user.referrals) : val;
+      setUser(prev => ({ ...prev, referrals: newVal }));
+      syncProgress({ referrals: newVal });
+    } else {
+      setLocalReferrals(prev => typeof val === 'function' ? val(prev) : val);
+    }
   };
 
   const totalModules = 12;
-  const completedChecklistCount = user?.checklist ? user.checklist.filter(c => c.checked).length : 0;
-  const progressPercentage = user 
-    ? Math.min(100, Math.round(((user.modulesCompleted + completedChecklistCount - 1) / totalModules) * 100))
-    : 0;
+  const completedChecklistCount = user
+    ? (user.checklist ? user.checklist.filter(c => c.checked).length : 0)
+    : localChecklist.filter(c => c.checked).length;
+  const modulesCompletedCount = user ? user.modulesCompleted : 8;
+  const progressPercentage = Math.min(100, Math.round(((modulesCompletedCount + completedChecklistCount) / totalModules) * 100));
 
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
-        modulesCompleted: user?.modulesCompleted || 8,
-        checklist: user?.checklist || [],
-        uploadedFiles: user?.uploadedFiles || [],
-        referrals: user?.referrals || 4,
-        referralCode: user?.referralCode || 'ARCH-7X9P-V2',
+        modulesCompleted: user ? user.modulesCompleted : 8,
+        checklist: user ? user.checklist : localChecklist,
+        uploadedFiles: user ? user.uploadedFiles : localFiles,
+        referrals: user ? user.referrals : localReferrals,
+        referralCode: user ? user.referralCode : 'ARCH-7X9P-V2',
         progressPercentage,
         login,
         logout,

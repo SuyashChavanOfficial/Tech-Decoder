@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 
@@ -23,11 +23,15 @@ export default function Dashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [modalMessage, setModalMessage] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  // Protect route
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  // Mock fallback for anonymous previews
+  const mockUser = {
+    name: "Alex Chen",
+    domain: "Backend Engineering",
+    avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuAvrYQbpk584ALwTACqL9kqJYe_-m7dsiX07EqLjKmTcxjm-E7HeYIyGbB1FQewyGJZSJ92YI7o_UigaHiBQGLPKMQJQdGzMxaFUyCuVtEuEyOzttt1fIlq1lw_ARwa4O0Ut-toKk_rjE70q0fUjpjqWYLQXalPA9qLIUY4eZ5N_Kg83XSAAJ4qPfPxdZIDNHOAJBPKSIdXA0K21281IzkxPZOVyp9kVS09aO-r0KR9qIwaINcuoNe7Hwn15Mvtrmk_X9SEXopajac"
+  };
+  const displayUser = user || mockUser;
 
   // Handle Drag Over
   const handleDrag = (e) => {
@@ -102,11 +106,11 @@ export default function Dashboard() {
               <img 
                 alt="User Avatar" 
                 className="w-full h-full object-cover" 
-                src={user.avatar}
+                src={displayUser.avatar}
               />
             </div>
-            <h2 className="font-headline-md text-headline-md text-on-surface mb-1">{user.name}</h2>
-            <p className="font-label-sm text-label-sm text-primary mb-4 bg-primary/10 px-3 py-1 rounded">{user.domain}</p>
+            <h2 className="font-headline-md text-headline-md text-on-surface mb-1">{displayUser.name}</h2>
+            <p className="font-label-sm text-label-sm text-primary mb-4 bg-primary/10 px-3 py-1 rounded">{displayUser.domain}</p>
             <div className="w-full h-1 bg-surface-container rounded-full overflow-hidden mb-2">
               <div 
                 className="h-full bg-primary rounded-full glow-effect transition-all duration-500"
@@ -216,7 +220,16 @@ export default function Dashboard() {
               {/* Viva Prep Checklist */}
               <div className="glass-panel rounded-xl p-6 border border-white/10">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-headline-md text-headline-md text-on-surface">Viva Prep Checklist</h3>
+                  <h3 className="font-headline-md text-headline-md text-on-surface">Viva Prep</h3>
+                  <button 
+                    onClick={() => setShowAddForm(!showAddForm)}
+                    className="text-primary hover:text-primary-fixed transition-all active:scale-90 flex items-center cursor-pointer p-1"
+                    aria-label="Toggle add task form"
+                  >
+                    <span className={`material-symbols-outlined transition-transform duration-300 ${showAddForm ? 'rotate-45' : ''}`}>
+                      add
+                    </span>
+                  </button>
                 </div>
                 <div className="space-y-4 mb-6">
                   {checklist.map(item => (
@@ -236,22 +249,35 @@ export default function Dashboard() {
                   ))}
                 </div>
 
-                <form onSubmit={handleAddTask} className="flex gap-2 border-t border-white/5 pt-4">
-                  <input 
-                    type="text" 
-                    placeholder="Add new prep task..."
-                    value={newTaskText}
-                    onChange={e => setNewTaskText(e.target.value)}
-                    className="flex-grow bg-surface-container-low border-b border-white/10 px-3 py-1 text-on-surface text-sm focus:outline-none focus:border-primary transition-all"
-                  />
-                  <button 
-                    type="submit" 
-                    className="text-primary hover:text-primary-fixed transition-colors flex items-center p-1 cursor-pointer active:scale-90"
-                    aria-label="Add task"
-                  >
-                    <span className="material-symbols-outlined">add_circle</span>
-                  </button>
-                </form>
+                <AnimatePresence>
+                  {showAddForm && (
+                    <motion.form 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      onSubmit={(e) => {
+                        handleAddTask(e);
+                        setShowAddForm(false);
+                      }}
+                      className="flex gap-2 border-t border-white/5 pt-4 overflow-hidden"
+                    >
+                      <input 
+                        type="text" 
+                        placeholder="Add new prep task..."
+                        value={newTaskText}
+                        onChange={e => setNewTaskText(e.target.value)}
+                        className="flex-grow bg-surface-container-low border-b border-white/10 px-3 py-1 text-on-surface text-sm focus:outline-none focus:border-primary transition-all"
+                      />
+                      <button 
+                        type="submit" 
+                        className="text-primary hover:text-primary-fixed transition-colors flex items-center p-1 cursor-pointer active:scale-90"
+                        aria-label="Add task"
+                      >
+                        <span className="material-symbols-outlined">add_circle</span>
+                      </button>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Secure Drag & Drop Document Upload */}
@@ -275,8 +301,8 @@ export default function Dashboard() {
                 <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
                   <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">upload_file</span>
                 </div>
-                <h4 className="font-body-md text-body-md text-on-surface mb-1">Upload Architecture Drafts</h4>
-                <p className="font-label-sm text-label-sm text-on-surface-variant">Drag &amp; drop files (.pdf, .png, .zip) or click to browse</p>
+                <h4 className="font-body-md text-body-md text-on-surface mb-1">Upload Documents</h4>
+                <p className="font-label-sm text-label-sm text-on-surface-variant">Drag &amp; drop or click to browse</p>
                 <p className="text-[10px] text-on-surface-variant/40 mt-1">Maximum secure file size: 10MB</p>
               </div>
 
