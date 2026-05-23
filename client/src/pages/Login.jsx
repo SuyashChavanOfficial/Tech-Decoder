@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
+import InteractiveGlowCard from '../components/InteractiveGlowCard';
 
 export default function Login() {
   const { login, register, loginWithGoogle } = useAuth();
@@ -17,6 +18,7 @@ export default function Login() {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authName, setAuthName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   // Alerts / Modals States
   const [alertOpen, setAlertOpen] = useState(false);
@@ -76,7 +78,7 @@ export default function Login() {
           transition={{ duration: 0.8 }}
           className="w-full max-w-md"
         >
-          <div className="glass-panel p-10 rounded-xl w-full flex flex-col gap-8 shadow-2xl border border-white/10 relative">
+          <InteractiveGlowCard className="p-10 w-full flex flex-col gap-8 shadow-2xl">
             <div className="text-center">
               <h2 className="font-headline-md text-headline-md text-on-surface mb-2">
                 {authMode === 'signin' ? 'Welcome Back' : 'Create Account'}
@@ -155,15 +157,26 @@ export default function Login() {
                     <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Password (min 6 characters)</label>
                     <Link to="#" className="font-label-sm text-label-sm text-primary hover:text-primary-fixed transition-colors">Forgot?</Link>
                   </div>
-                  <input 
-                    required
-                    type="password" 
-                    placeholder="••••••••"
-                    minLength={6}
-                    value={authPassword}
-                    onChange={e => setAuthPassword(e.target.value)}
-                    className="bg-transparent border-b border-white/20 rounded-none px-2 py-2 text-on-surface font-body-md focus:ring-0 focus:outline-none focus:border-primary transition-all"
-                  />
+                  <div className="relative flex items-center">
+                    <input 
+                      required
+                      type={showPassword ? 'text' : 'password'} 
+                      placeholder="••••••••"
+                      minLength={6}
+                      value={authPassword}
+                      onChange={e => setAuthPassword(e.target.value)}
+                      className="bg-transparent border-b border-white/20 rounded-none pl-2 pr-10 py-2 text-on-surface font-body-md focus:ring-0 focus:outline-none focus:border-primary transition-all w-full"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2 text-on-surface-variant hover:text-on-surface transition-colors focus:outline-none"
+                    >
+                      <span className="material-symbols-outlined text-xl select-none">
+                        {showPassword ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
 
                 <button 
@@ -200,7 +213,7 @@ export default function Login() {
                 )}
               </p>
             </div>
-          </div>
+          </InteractiveGlowCard>
         </motion.section>
       </main>
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import InteractiveGlowCard from '../components/InteractiveGlowCard';
 
 export default function BookConsultation() {
   const { user, bookConsultation } = useAuth();
@@ -61,7 +62,7 @@ export default function BookConsultation() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-lg relative z-10"
       >
-        <div className="glass-panel p-8 md:p-10 rounded-2xl w-full flex flex-col gap-8 shadow-2xl border border-white/10 relative">
+        <InteractiveGlowCard className="p-8 md:p-10 w-full flex flex-col gap-8 shadow-2xl">
           
           <AnimatePresence mode="wait">
             {submitted ? (
@@ -220,7 +221,7 @@ export default function BookConsultation() {
             )}
           </AnimatePresence>
 
-        </div>
+        </InteractiveGlowCard>
       </motion.section>
     </main>
   );
