@@ -25,6 +25,15 @@ export default function Login() {
 
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
+    
+    // Client-side password validation
+    if (authPassword.length < 6) {
+      setAlertTitle('Validation Error');
+      setAlertMessage('Password must be at least 6 characters long.');
+      setAlertOpen(true);
+      return;
+    }
+
     if (authMode === 'signin') {
       const result = await login(authEmail, authPassword);
       if (result.success) {
@@ -36,8 +45,8 @@ export default function Login() {
           navigate(from);
         }, 1500);
       } else {
-        setAlertTitle('Error');
-        setAlertMessage(result.message || 'Please enter valid email and password.');
+        setAlertTitle('Authentication Failed');
+        setAlertMessage(result.message || 'Invalid email or password.');
         setAlertOpen(true);
       }
     } else {
@@ -51,17 +60,11 @@ export default function Login() {
           navigate(from);
         }, 1500);
       } else {
-        setAlertTitle('Error');
-        setAlertMessage(result.message || 'Please fill all registration fields.');
+        setAlertTitle('Registration Failed');
+        setAlertMessage(result.message || 'Please fill all registration fields correctly.');
         setAlertOpen(true);
       }
     }
-  };
-
-  const fillMockCredentials = () => {
-    setAuthEmail('alex.chen@mit.edu');
-    setAuthPassword('super-secret-pass');
-    setAuthName('Alex Chen');
   };
 
   return (
@@ -149,13 +152,14 @@ export default function Login() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <div className="flex justify-between items-center">
-                    <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Password</label>
+                    <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Password (min 6 characters)</label>
                     <Link to="#" className="font-label-sm text-label-sm text-primary hover:text-primary-fixed transition-colors">Forgot?</Link>
                   </div>
                   <input 
                     required
                     type="password" 
                     placeholder="••••••••"
+                    minLength={6}
                     value={authPassword}
                     onChange={e => setAuthPassword(e.target.value)}
                     className="bg-transparent border-b border-white/20 rounded-none px-2 py-2 text-on-surface font-body-md focus:ring-0 focus:outline-none focus:border-primary transition-all"
@@ -169,17 +173,6 @@ export default function Login() {
                   {authMode === 'signin' ? 'Sign In' : 'Sign Up'}
                 </button>
               </form>
-            </div>
-
-            {/* Quick Demo Helper */}
-            <div className="text-center pt-2 border-t border-white/5">
-              <button 
-                type="button"
-                onClick={fillMockCredentials}
-                className="text-xs text-primary hover:underline"
-              >
-                ⚡ Autofill Demo Credentials
-              </button>
             </div>
 
             <div className="text-center mt-2">

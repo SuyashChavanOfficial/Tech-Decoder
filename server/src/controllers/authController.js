@@ -42,15 +42,15 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'All registration fields are required.' });
     }
 
-    // Password validation (length >= 8)
-    if (password.length < 8) {
-      return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
+    // Password validation (length >= 6)
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
     }
 
     // Check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists in the system.' });
+      return res.status(400).json({ message: 'Email address already exists.' });
     }
 
     // Hash password (12 salt rounds)
