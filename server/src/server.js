@@ -57,9 +57,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'A server error occurred. Please try again later.' });
 });
 
-// Run server on 127.0.0.1 for secure local testing (avoid 0.0.0.0)
+// Run server on 127.0.0.1 for secure local testing (avoid 0.0.0.0), but use 0.0.0.0 for Render (production)
 const PORT = process.env.PORT || 5000;
-const HOST = '127.0.0.1';
+const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on http://${HOST}:${PORT}`);

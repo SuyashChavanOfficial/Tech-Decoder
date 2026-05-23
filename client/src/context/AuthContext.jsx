@@ -5,8 +5,12 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+const BACKEND_URL = import.meta.env.MODE === 'development' 
+  ? 'http://127.0.0.1:5000' 
+  : 'https://tech-decoder-backend.onrender.com';
+
 const API = axios.create({
-  baseURL: 'http://127.0.0.1:5000/api',
+  baseURL: `${BACKEND_URL}/api`,
   withCredentials: true
 });
 
@@ -46,7 +50,7 @@ export const AuthProvider = ({ children }) => {
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           try {
-            const res = await axios.post('http://127.0.0.1:5000/api/auth/refresh', {}, { withCredentials: true });
+            const res = await axios.post(`${BACKEND_URL}/api/auth/refresh`, {}, { withCredentials: true });
             const newToken = res.data.token;
             setAccessToken(newToken);
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -66,7 +70,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const res = await axios.post('http://127.0.0.1:5000/api/auth/refresh', {}, { withCredentials: true });
+        const res = await axios.post(`${BACKEND_URL}/api/auth/refresh`, {}, { withCredentials: true });
         const token = res.data.token;
         setAccessToken(token);
         
