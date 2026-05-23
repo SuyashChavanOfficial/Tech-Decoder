@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
 import { generateAccessToken, generateRefreshToken, getSecret } from '../middleware/authMiddleware.js';
 
@@ -258,5 +259,71 @@ export const updateUserProgress = async (req, res) => {
   } catch (error) {
     console.error('Progress sync failed:', error.message);
     res.status(500).json({ message: 'Server error updating user metrics.' });
+  }
+};
+
+export const googleLogin = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ message: 'Google credential token is required.' });
+    }
+
+    const clientId = getSecret('GOOGLE_CLIENT_ID');
+    const oAuthClient = new OAuth2Client(clientId);
+
+    const ticket = await oAuthClient.verifyIdToken({
+      idToken: token,
+      audience: clientId
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Google account has no associated email.' });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create user with Google login details and random password
+      const dummyPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const salt = await bcrypt.genSalt(12);
+      const hashedPassword = await bcrypt.hash(dummyPassword, salt);
+
+      user = await User.create({
+        name: name || 'Google User',
+        email,
+        password: hashedPassword,
+        avatar: picture || undefined
+      });
+    }
+
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    setRefreshTokenCookie(res, refreshToken);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      domain: user.domain,
+      avatar: user.avatar,
+      modulesCompleted: user.modulesCompleted,
+      checklist: user.checklist,
+      referrals: user.referrals,
+      referralCode: user.referralCode,
+      uploadedFiles: user.uploadedFiles,
+      token: accessToken
+    });
+  } catch (error) {
+    console.error('Google login failed:', error.message);
+    res.status(400).json({ message: 'Google authentication validation failed.' });
   }
 };

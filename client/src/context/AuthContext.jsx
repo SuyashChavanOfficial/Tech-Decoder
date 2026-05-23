@@ -199,6 +199,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (googleToken) => {
+    try {
+      const res = await API.post('/auth/google-login', { token: googleToken });
+      setUser(res.data);
+      setAccessToken(res.data.token);
+      return { success: true };
+    } catch (err) {
+      return { 
+        success: false, 
+        message: err.response?.data?.message || 'Google authentication failed.' 
+      };
+    }
+  };
+
   const totalModules = 12;
   const completedChecklistCount = user
     ? (user.checklist ? user.checklist.filter(c => c.checked).length : 0)
@@ -225,7 +239,8 @@ export const AuthProvider = ({ children }) => {
         uploadFile,
         bookConsultation,
         submitInquiry,
-        setReferrals
+        setReferrals,
+        loginWithGoogle
       }}
     >
       {children}
