@@ -77,12 +77,6 @@ export default function Navbar() {
             >
               Home
             </NavLink>
-            <button 
-              onClick={() => handleNavClick('/', '#domains-section')}
-              className="text-on-surface-variant hover:text-on-surface transition-colors font-body-md text-body-md hover:opacity-80 active:scale-95 transition-transform"
-            >
-              Domains
-            </button>
             <NavLink 
               to="/about" 
               className={({ isActive }) => 
@@ -99,12 +93,14 @@ export default function Navbar() {
             >
               Pricing
             </NavLink>
-            <button 
-              onClick={() => handleNavClick('/pricing', '#referral-section')}
-              className="text-on-surface-variant hover:text-on-surface transition-colors font-body-md text-body-md hover:opacity-80 active:scale-95 transition-transform"
+            <NavLink 
+              to="/referral" 
+              className={({ isActive }) => 
+                `font-body-md text-body-md transition-colors duration-300 pb-1 ${isActive ? 'text-primary font-bold border-b-2 border-primary' : 'text-on-surface-variant hover:text-on-surface'}`
+              }
             >
               Referral
-            </button>
+            </NavLink>
             <NavLink 
               to="/dashboard" 
               className={({ isActive }) => 
@@ -172,12 +168,6 @@ export default function Navbar() {
             >
               Home
             </NavLink>
-            <button 
-              onClick={() => handleNavClick('/', '#domains-section')}
-              className="text-left font-body-md text-body-md text-on-surface-variant py-2"
-            >
-              Domains
-            </button>
             <NavLink 
               to="/about" 
               className={({ isActive }) => 
@@ -194,12 +184,14 @@ export default function Navbar() {
             >
               Pricing
             </NavLink>
-            <button 
-              onClick={() => handleNavClick('/pricing', '#referral-section')}
-              className="text-left font-body-md text-body-md text-on-surface-variant py-2"
+            <NavLink 
+              to="/referral" 
+              className={({ isActive }) => 
+                `font-body-md text-body-md py-2 ${isActive ? 'text-primary font-bold' : 'text-on-surface-variant'}`
+              }
             >
               Referral
-            </button>
+            </NavLink>
             <NavLink 
               to="/dashboard" 
               className={({ isActive }) => 

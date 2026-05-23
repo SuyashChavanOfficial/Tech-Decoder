@@ -11,6 +11,7 @@ import { useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import About from './pages/About';
 import Pricing from './pages/Pricing';
+import Referral from './pages/Referral';
 import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
 
@@ -43,6 +44,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/referral" element={<Referral />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
