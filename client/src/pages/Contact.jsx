@@ -29,11 +29,11 @@ export default function Contact() {
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
 
-  const handleAuthSubmit = (e) => {
+  const handleAuthSubmit = async (e) => {
     e.preventDefault();
     if (authMode === 'signin') {
-      const success = login(authEmail, authPassword);
-      if (success) {
+      const result = await login(authEmail, authPassword);
+      if (result.success) {
         setAlertTitle('Welcome Back');
         setAlertMessage('Authentication successful! Loading your dashboard...');
         setAlertOpen(true);
@@ -43,12 +43,12 @@ export default function Contact() {
         }, 1500);
       } else {
         setAlertTitle('Error');
-        setAlertMessage('Please enter valid email and password.');
+        setAlertMessage(result.message || 'Please enter valid email and password.');
         setAlertOpen(true);
       }
     } else {
-      const success = register(authName, authEmail, authPassword);
-      if (success) {
+      const result = await register(authName, authEmail, authPassword);
+      if (result.success) {
         setAlertTitle('Account Created');
         setAlertMessage('Your account was created successfully! Launching dashboard...');
         setAlertOpen(true);
@@ -58,13 +58,13 @@ export default function Contact() {
         }, 1500);
       } else {
         setAlertTitle('Error');
-        setAlertMessage('Please fill all registration fields.');
+        setAlertMessage(result.message || 'Please fill all registration fields.');
         setAlertOpen(true);
       }
     }
   };
 
-  const handleInquirySubmit = (e) => {
+  const handleInquirySubmit = async (e) => {
     e.preventDefault();
     if (!inquiryName || !inquiryEmail || !inquiryDomain || !inquiryIdea) {
       setAlertTitle('Incomplete Form');
@@ -73,7 +73,7 @@ export default function Contact() {
       return;
     }
     
-    submitInquiry({
+    const result = await submitInquiry({
       name: inquiryName,
       email: inquiryEmail,
       school: inquirySchool,
@@ -82,17 +82,23 @@ export default function Contact() {
       idea: inquiryIdea
     });
 
-    setAlertTitle('Inquiry Submitted');
-    setAlertMessage('Thank you! Our architecture review board has received your project idea and will contact you within 24 hours.');
-    setAlertOpen(true);
+    if (result.success) {
+      setAlertTitle('Inquiry Submitted');
+      setAlertMessage('Thank you! Our architecture review board has received your project idea and will contact you within 24 hours.');
+      setAlertOpen(true);
 
-    // Reset Form
-    setInquiryName('');
-    setInquiryEmail('');
-    setInquirySchool('');
-    setInquiryBranch('');
-    setInquiryDomain('');
-    setInquiryIdea('');
+      // Reset Form
+      setInquiryName('');
+      setInquiryEmail('');
+      setInquirySchool('');
+      setInquiryBranch('');
+      setInquiryDomain('');
+      setInquiryIdea('');
+    } else {
+      setAlertTitle('Error');
+      setAlertMessage(result.message || 'Failed to submit inquiry.');
+      setAlertOpen(true);
+    }
   };
 
   const fillMockCredentials = () => {

@@ -1,0 +1,261 @@
+import bcrypt from 'bcryptjs';
+import User from '../models/User.js';
+import { generateAccessToken, generateRefreshToken } from '../middleware/authMiddleware.js';
+
+// Helper to parse cookies from request headers
+const parseCookies = (req) => {
+  const list = {};
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return list;
+
+  cookieHeader.split(';').forEach(cookie => {
+    let [name, ...rest] = cookie.split('=');
+    name = name.trim();
+    if (!name) return;
+    const val = rest.join('=').trim();
+    list[name] = decodeURIComponent(val);
+  });
+
+  return list;
+};
+
+// Set refresh token in HTTP-only cookie
+const setRefreshTokenCookie = (res, token) => {
+  const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+  res.cookie('refreshToken', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // true in prod
+    sameSite: 'lax',
+    maxAge: maxAge,
+    path: '/api/auth/refresh' // Limit path visibility for security
+  });
+};
+
+export const registerUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'All registration fields are required.' });
+    }
+
+    // Password validation (length >= 8)
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
+    }
+
+    // Check if user already exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists in the system.' });
+    }
+
+    // Hash password (12 salt rounds)
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword
+    });
+
+    if (user) {
+      const accessToken = generateAccessToken(user._id);
+      const refreshToken = generateRefreshToken(user._id);
+
+      // Save refresh token in database
+      user.refreshToken = refreshToken;
+      await user.save();
+
+      // Send refresh token in secure cookie
+      setRefreshTokenCookie(res, refreshToken);
+
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        domain: user.domain,
+        avatar: user.avatar,
+        modulesCompleted: user.modulesCompleted,
+        checklist: user.checklist,
+        referrals: user.referrals,
+        referralCode: user.referralCode,
+        uploadedFiles: user.uploadedFiles,
+        token: accessToken
+      });
+    } else {
+      res.status(400).json({ message: 'Failed to create user.' });
+    }
+  } catch (error) {
+    console.error('Registration failed:', error.message);
+    res.status(500).json({ message: 'Server error during registration.' });
+  }
+};
+
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required.' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Save refresh token
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    // Set cookie
+    setRefreshTokenCookie(res, refreshToken);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      domain: user.domain,
+      avatar: user.avatar,
+      modulesCompleted: user.modulesCompleted,
+      checklist: user.checklist,
+      referrals: user.referrals,
+      referralCode: user.referralCode,
+      uploadedFiles: user.uploadedFiles,
+      token: accessToken
+    });
+  } catch (error) {
+    console.error('Login failed:', error.message);
+    res.status(500).json({ message: 'Server error during authentication.' });
+  }
+};
+
+export const logoutUser = async (req, res) => {
+  try {
+    const cookies = parseCookies(req);
+    const refreshToken = cookies.refreshToken;
+
+    if (refreshToken) {
+      // Find user and remove refresh token
+      const user = await User.findOne({ refreshToken });
+      if (user) {
+        user.refreshToken = '';
+        await user.save();
+      }
+    }
+
+    // Clear refresh cookie
+    res.clearCookie('refreshToken', {
+      path: '/api/auth/refresh',
+      httpOnly: true
+    });
+
+    res.json({ message: 'Logged out successfully.' });
+  } catch (error) {
+    console.error('Logout failed:', error.message);
+    res.status(500).json({ message: 'Server error during logout.' });
+  }
+};
+
+// Refresh Access Token endpoint (Rotates Refresh Tokens)
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const cookies = parseCookies(req);
+    const token = cookies.refreshToken;
+
+    if (!token) {
+      return res.status(401).json({ message: 'Not authorized, no refresh token.' });
+    }
+
+    // Find user with this token
+    const user = await User.findOne({ refreshToken: token });
+    if (!user) {
+      return res.status(403).json({ message: 'Token reuse or invalid session.' });
+    }
+
+    // Verify token
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET || global.JWT_REFRESH_SECRET);
+      
+      // Token is valid: rotate token
+      const newAccessToken = generateAccessToken(user._id);
+      const newRefreshToken = generateRefreshToken(user._id);
+
+      user.refreshToken = newRefreshToken;
+      await user.save();
+
+      setRefreshTokenCookie(res, newRefreshToken);
+      res.json({ token: newAccessToken });
+    } catch (err) {
+      // Token expired or invalid
+      user.refreshToken = '';
+      await user.save();
+      res.clearCookie('refreshToken', { path: '/api/auth/refresh', httpOnly: true });
+      return res.status(401).json({ message: 'Refresh token expired or invalid.' });
+    }
+  } catch (error) {
+    console.error('Token refresh failed:', error.message);
+    res.status(500).json({ message: 'Server error during token refresh.' });
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: 'User not found.' });
+    }
+  } catch (error) {
+    console.error('Fetch profile failed:', error.message);
+    res.status(500).json({ message: 'Server error fetching user profile.' });
+  }
+};
+
+// Update user tasks checklist and progress stats
+export const updateUserProgress = async (req, res) => {
+  try {
+    const { checklist, modulesCompleted, uploadedFiles, referrals } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Update progress variables securely
+    if (checklist !== undefined) user.checklist = checklist;
+    if (modulesCompleted !== undefined) user.modulesCompleted = modulesCompleted;
+    if (uploadedFiles !== undefined) user.uploadedFiles = uploadedFiles;
+    if (referrals !== undefined) user.referrals = referrals;
+
+    const updatedUser = await user.save();
+    
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      domain: updatedUser.domain,
+      avatar: updatedUser.avatar,
+      modulesCompleted: updatedUser.modulesCompleted,
+      checklist: updatedUser.checklist,
+      referrals: updatedUser.referrals,
+      referralCode: updatedUser.referralCode,
+      uploadedFiles: updatedUser.uploadedFiles
+    });
+  } catch (error) {
+    console.error('Progress sync failed:', error.message);
+    res.status(500).json({ message: 'Server error updating user metrics.' });
+  }
+};
