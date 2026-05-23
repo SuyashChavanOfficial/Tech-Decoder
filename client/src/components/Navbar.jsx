@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Modal from './Modal';
 import logo from '../assets/logo.png';
@@ -64,6 +65,20 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Mobile Drawer Backdrop Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'nav-scrolled' : 'bg-transparent border-transparent'}`}>
         <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex justify-between items-center h-20">
           {/* Logo */}
@@ -168,8 +183,15 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="md:hidden glass-panel border-t border-white/10 w-full absolute top-20 left-0 p-6 flex flex-col space-y-4 animate-in slide-in-from-top duration-300">
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="md:hidden bg-[#13161e]/98 border-t border-b border-white/10 w-full absolute top-20 left-0 p-6 flex flex-col space-y-4 shadow-2xl overflow-hidden origin-top z-50"
+            >
             <NavLink 
               to="/" 
               className={({ isActive }) => 
@@ -245,8 +267,9 @@ export default function Navbar() {
                 </>
               )}
             </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Free Consultation Modal */}

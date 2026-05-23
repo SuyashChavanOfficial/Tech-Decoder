@@ -1,9 +1,11 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext';
 import ScrollToTop from './components/ScrollToTop';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import MouseGlow from './components/MouseGlow';
 
 import { useAuth } from './context/AuthContext';
 
@@ -16,8 +18,24 @@ import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 
+// A premium page transition wrapper that feels like the content is "spreading out"
+const PageTransition = ({ children }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.98 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="flex-grow flex flex-col w-full"
+    >
+      {children}
+    </motion.div>
+  );
+};
+
 function AppContent() {
   const { loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -32,24 +50,28 @@ function AppContent() {
   }
 
   return (
-    <div className="antialiased min-h-screen flex flex-col bg-background text-on-surface font-sans selection:bg-primary-container selection:text-on-primary-container relative">
+    <div className="antialiased min-h-screen flex flex-col text-on-surface font-sans selection:bg-primary-container selection:text-on-primary-container relative">
       {/* Ambient background light leaks */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-[-1]">
         <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[40%] h-[40%] bg-tertiary-container/5 rounded-full blur-[100px]" />
       </div>
 
+      <MouseGlow />
+
       <Navbar />
       
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/referral" element={<Referral />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+          <Route path="/about" element={<PageTransition><About /></PageTransition>} />
+          <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
+          <Route path="/referral" element={<PageTransition><Referral /></PageTransition>} />
+          <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+          <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+          <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        </Routes>
+      </AnimatePresence>
 
       <Footer />
     </div>

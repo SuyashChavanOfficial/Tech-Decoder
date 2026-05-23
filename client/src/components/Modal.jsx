@@ -32,7 +32,7 @@ export default function Modal({ isOpen, onClose, type = 'alert', title, message,
     }
   }, [isOpen, user]);
 
-  if (!isOpen) return null;
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -62,15 +62,30 @@ export default function Modal({ isOpen, onClose, type = 'alert', title, message,
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{
+        pointerEvents: isOpen ? 'auto' : 'none'
+      }}
+    >
       {/* Backdrop */}
-      <div 
+      <motion.div 
+        animate={{ opacity: isOpen ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
       
       {/* Modal Card */}
-      <div className="relative glass-panel w-full max-w-md p-8 rounded-xl shadow-2xl z-10 border border-white/10 animate-in fade-in zoom-in duration-200">
+      <motion.div 
+        animate={{ 
+          opacity: isOpen ? 1 : 0,
+          scale: isOpen ? 1 : 0.95,
+          y: isOpen ? 0 : 15
+        }}
+        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        className="relative glass-panel w-full max-w-md p-8 rounded-xl shadow-2xl z-10 border border-white/10"
+      >
         <button 
           onClick={onClose} 
           className="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface transition-colors"
@@ -225,7 +240,7 @@ export default function Modal({ isOpen, onClose, type = 'alert', title, message,
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
