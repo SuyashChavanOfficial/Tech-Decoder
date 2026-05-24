@@ -147,6 +147,16 @@ export const loginUser = async (req, res) => {
 
     // Save refresh token
     user.refreshToken = refreshToken;
+
+    // Lazily sync real referral count
+    const referralsCount = await Referral.countDocuments({ 
+      referrer: user._id, 
+      status: { $in: ['successful', 'paid'] } 
+    });
+    if (user.referrals !== referralsCount) {
+      user.referrals = referralsCount;
+    }
+
     await user.save();
 
     // Set cookie
@@ -253,6 +263,15 @@ export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
     if (user) {
+      // Lazily sync real referral count
+      const referralsCount = await Referral.countDocuments({ 
+        referrer: user._id, 
+        status: { $in: ['successful', 'paid'] } 
+      });
+      if (user.referrals !== referralsCount) {
+        user.referrals = referralsCount;
+        await user.save();
+      }
       res.json(user);
     } else {
       res.status(404).json({ message: 'User not found.' });
@@ -374,6 +393,16 @@ export const googleLogin = async (req, res) => {
       }
     }
 
+    // Lazily sync real referral count
+    const referralsCount = await Referral.countDocuments({ 
+      referrer: user._id, 
+      status: { $in: ['successful', 'paid'] } 
+    });
+    if (user.referrals !== referralsCount) {
+      user.referrals = referralsCount;
+      await user.save();
+    }
+
     res.json({
       _id: user._id,
       name: user.name,
@@ -444,6 +473,15 @@ export const updateReferralStatus = async (req, res) => {
     // Update current status
     referral.status = status;
     await referral.save();
+
+    // Sync referrer's referral count
+    if (referral.referrer) {
+      const count = await Referral.countDocuments({ 
+        referrer: referral.referrer, 
+        status: { $in: ['successful', 'paid'] } 
+      });
+      await User.findByIdAndUpdate(referral.referrer, { referrals: count });
+    }
 
     res.json(referral);
   } catch (error) {

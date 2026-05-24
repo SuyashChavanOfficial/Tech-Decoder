@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
       { text: 'Dry run presentation with mentor', checked: false }
     ]
   },
-  referrals: { type: Number, default: 4 },
+  referrals: { type: Number, default: 0 },
   referralCode: { type: String },
   uploadedFiles: { type: [fileSchema], default: [] },
   refreshToken: { type: String }
