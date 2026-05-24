@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
+import ReferralShare from '../components/ReferralShare';
 
 export default function Dashboard() {
   const { 
@@ -33,7 +34,6 @@ export default function Dashboard() {
   const [dragActive, setDragActive] = useState(false);
   const [newTaskText, setNewTaskText] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
-  const [copiedReferral, setCopiedReferral] = useState(false);
 
   // Referral Manager States
   const [referrals, setReferrals] = useState([]);
@@ -196,14 +196,6 @@ export default function Dashboard() {
     if (!newTaskText.trim()) return;
     addChecklistItem(newTaskText);
     setNewTaskText('');
-  };
-
-  const handleCopyReferral = () => {
-    if (!user.referralCode) return;
-    const refLink = `${window.location.origin}/?ref=${user.referralCode}`;
-    navigator.clipboard.writeText(refLink);
-    setCopiedReferral(true);
-    setTimeout(() => setCopiedReferral(false), 2000);
   };
 
   const openStatusEditor = (refRecord) => {
@@ -1100,62 +1092,7 @@ export default function Dashboard() {
                     <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">My Referral Program</h3>
                     <p className="text-sm text-on-surface-variant mb-4">Invite your peers to register or request consultations to earn reward credits.</p>
                     
-                    <div className="bg-surface-container/40 border border-white/5 rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                      <div className="overflow-hidden max-w-full">
-                        <span className="text-[10px] bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded font-mono font-bold uppercase tracking-wider inline-block mb-2">
-                          My Referral Code
-                        </span>
-                        <h4 className="text-xl font-bold font-mono text-on-surface mb-1 select-all">{user.referralCode || 'ARCH-PREP-XXXX'}</h4>
-                        <p className="text-xs text-on-surface-variant truncate max-w-md">Link: {window.location.origin}/?ref={user.referralCode || 'CODE'}</p>
-                      </div>
-
-                      <button 
-                        onClick={handleCopyReferral}
-                        className="bg-primary hover:opacity-90 text-on-primary px-6 py-3 rounded-lg font-label-sm text-label-sm uppercase tracking-wider flex items-center justify-center space-x-2 active:scale-95 transition-all cursor-pointer w-full md:w-auto"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">
-                          {copiedReferral ? 'check' : 'content_copy'}
-                        </span>
-                        <span>{copiedReferral ? 'Copied!' : 'Copy Link'}</span>
-                      </button>
-                    </div>
-
-                    {/* Social sharing links */}
-                    <div className="mt-6">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-3">Share Referral Code</p>
-                      <div className="flex flex-wrap gap-3">
-                        <a 
-                          href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`Hey! Join Tech Decoder using my referral code ${user.referralCode} and get expert mentorship: ${window.location.origin}/?ref=${user.referralCode}`)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center space-x-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">share</span>
-                          <span>WhatsApp</span>
-                        </a>
-                        
-                        <a 
-                          href={`sms:?&body=${encodeURIComponent(`Hey! Join Tech Decoder using my referral code ${user.referralCode} and get expert mentorship: ${window.location.origin}/?ref=${user.referralCode}`)}`}
-                          className="flex items-center space-x-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">sms</span>
-                          <span>Message</span>
-                        </a>
-
-                        <button 
-                          onClick={() => {
-                            const shareText = `Hey! Join Tech Decoder using my referral code ${user.referralCode} and get expert mentorship: ${window.location.origin}/?ref=${user.referralCode}`;
-                            navigator.clipboard.writeText(shareText);
-                            showErrorAlert('Copied for Instagram', 'Referral text copied to clipboard! You can paste it into Instagram Direct Messages or Bio.');
-                            window.open('https://instagram.com', '_blank');
-                          }}
-                          className="flex items-center space-x-2 bg-pink-500/10 hover:bg-pink-500/20 text-pink-400 border border-pink-500/20 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">photo_camera</span>
-                          <span>Instagram</span>
-                        </button>
-                      </div>
-                    </div>
+                    <ReferralShare referralCode={user.referralCode} />
                   </div>
                 </div>
               )}
