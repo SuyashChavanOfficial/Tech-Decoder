@@ -140,6 +140,8 @@ Use my referral link to get a discount 👇
             href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(referralLink)}`}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={handleCopyLink}
+            title="Message will be copied — paste it in your post"
             className="h-10 px-2 sm:px-4 rounded-lg bg-[#0A66C2]/10 border border-[#0A66C2]/30 text-[#0A66C2] hover:bg-[#0A66C2]/20 transition-all active:scale-95 text-[10px] sm:text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap"
             aria-label="Share on LinkedIn"
           >
@@ -168,6 +170,14 @@ Use my referral link to get a discount 👇
             href={`https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent("🚀 Stuck with your Final Year Project? Get expert mentorship at Tech Decoder!")}`}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                e.preventDefault();
+                handleCopyLink();
+                window.open('https://web.telegram.org/', '_blank');
+              }
+            }}
+            title="On desktop, message will be copied — paste it in Telegram Web"
             className="h-10 px-2 sm:px-4 rounded-lg bg-[#229ED9]/10 border border-[#229ED9]/30 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all active:scale-95 text-[10px] sm:text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1 sm:gap-2 whitespace-nowrap"
             aria-label="Share on Telegram"
           >
@@ -188,7 +198,7 @@ Use my referral link to get a discount 👇
           </a>
         </div>
         <p className="text-[10px] text-on-surface-variant/50 mt-2.5">
-          Instagram: message is auto-copied to clipboard — paste it in your DM.
+          Instagram, LinkedIn & Telegram (Desktop): message is auto-copied to clipboard — paste it in your post/DM.
         </p>
       </div>
     </div>
