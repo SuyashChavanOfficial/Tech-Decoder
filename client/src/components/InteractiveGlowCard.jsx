@@ -78,17 +78,22 @@ export default function InteractiveGlowCard({ children, className = '', containe
   return (
     <div 
       ref={cardRef}
-      className={`relative p-[1.5px] rounded-2xl transition-all duration-300 ${containerClassName}`}
+      className={`relative p-[1.5px] rounded-2xl ${containerClassName}`}
       style={{
         background: `radial-gradient(circle var(--glow-radius) at var(--mouse-x) var(--mouse-y), rgba(173, 198, 255, var(--glow-alpha)) 0%, rgba(255, 255, 255, 0.08) 100%)`,
       }}
     >
-      {/* Background shadow glow behind the card */}
+      {/* Background shadow glow behind the card - massive canvas offset to prevent clipping in Safari */}
       <div 
-        className="absolute -inset-10 pointer-events-none blur-3xl rounded-2xl transition-opacity duration-300 z-[-1]"
+        className="absolute pointer-events-none blur-3xl rounded-2xl transition-opacity duration-300 z-[-1]"
         style={{
+          '--glow-offset': '160px',
+          top: 'calc(-1 * var(--glow-offset))',
+          left: 'calc(-1 * var(--glow-offset))',
+          right: 'calc(-1 * var(--glow-offset))',
+          bottom: 'calc(-1 * var(--glow-offset))',
           opacity: 'var(--glow-opacity)',
-          background: `radial-gradient(circle calc(var(--glow-radius) + 100px) at calc(var(--mouse-x) + 40px) calc(var(--mouse-y) + 40px), rgba(173, 198, 255, 0.12) 0%, transparent 80%)`,
+          background: `radial-gradient(circle calc(var(--glow-radius) + 100px) at calc(var(--mouse-x) + var(--glow-offset)) calc(var(--mouse-y) + var(--glow-offset)), rgba(173, 198, 255, 0.12) 0%, transparent 80%)`,
         }}
       />
       {/* Content wrapper */}
