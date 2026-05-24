@@ -1,4 +1,6 @@
 import Consultation from '../models/Consultation.js';
+import User from '../models/User.js';
+import Referral from '../models/Referral.js';
 
 export const createConsultation = async (req, res) => {
   try {
@@ -24,6 +26,27 @@ export const createConsultation = async (req, res) => {
       projectDescription: projectDescription || '',
       referralCode: referralCode || ''
     });
+
+    // Track this booking as a referral transaction if code is present
+    if (referralCode) {
+      try {
+        const referrerUser = await User.findOne({ referralCode });
+        const referredUser = await User.findOne({ email });
+
+        await Referral.create({
+          referrer: referrerUser ? referrerUser._id : null,
+          referrerName: referrerUser ? referrerUser.name : 'Unknown Referrer',
+          referrerEmail: referrerUser ? referrerUser.email : 'unknown@referrer.com',
+          referrerCode: referralCode,
+          referredUser: referredUser ? referredUser._id : null,
+          referredName: name,
+          referredEmail: email || 'unknown@referred.com',
+          type: 'consultation'
+        });
+      } catch (refError) {
+        console.error('Failed to track referral during consultation booking:', refError.message);
+      }
+    }
 
     res.status(201).json({
       success: true,

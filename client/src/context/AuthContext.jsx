@@ -116,9 +116,15 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     try {
-      const res = await API.post('/auth/register', { name, email, password });
+      const referralCode = sessionStorage.getItem('referralCode') || '';
+      const res = await API.post('/auth/register', { name, email, password, referralCode });
       setUser(res.data);
       setAccessToken(res.data.token);
+      
+      // Clean up sessionStorage after successful registration
+      if (referralCode) {
+        sessionStorage.removeItem('referralCode');
+      }
       return { success: true };
     } catch (err) {
       return { 
@@ -207,9 +213,15 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithGoogle = async (googleToken) => {
     try {
-      const res = await API.post('/auth/google-login', { token: googleToken });
+      const referralCode = sessionStorage.getItem('referralCode') || '';
+      const res = await API.post('/auth/google-login', { token: googleToken, referralCode });
       setUser(res.data);
       setAccessToken(res.data.token);
+      
+      // Clean up sessionStorage after successful registration
+      if (referralCode) {
+        sessionStorage.removeItem('referralCode');
+      }
       return { success: true };
     } catch (err) {
       return { 

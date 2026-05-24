@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
+import Referral from '../models/Referral.js';
 import { generateAccessToken, generateRefreshToken, getSecret } from '../middleware/authMiddleware.js';
 
 // Helper to parse cookies from request headers
@@ -36,7 +37,7 @@ const setRefreshTokenCookie = (res, token) => {
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, referralCode } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'All registration fields are required.' });
@@ -74,6 +75,31 @@ export const registerUser = async (req, res) => {
 
       // Send refresh token in secure cookie
       setRefreshTokenCookie(res, refreshToken);
+
+      // Handle referral linking if a code is provided
+      if (referralCode) {
+        try {
+          const referrerUser = await User.findOne({ referralCode });
+          if (referrerUser) {
+            await Referral.create({
+              referrer: referrerUser._id,
+              referrerName: referrerUser.name,
+              referrerEmail: referrerUser.email,
+              referrerCode: referralCode,
+              referredUser: user._id,
+              referredName: user.name,
+              referredEmail: user.email,
+              type: 'registration'
+            });
+
+            // Increment referrer's count
+            referrerUser.referrals = (referrerUser.referrals || 0) + 1;
+            await referrerUser.save();
+          }
+        } catch (refError) {
+          console.error('Failed to link referral during registration:', refError.message);
+        }
+      }
 
       res.status(201).json({
         _id: user._id,
@@ -276,7 +302,7 @@ export const updateUserProgress = async (req, res) => {
 
 export const googleLogin = async (req, res) => {
   try {
-    const { token } = req.body;
+    const { token, referralCode } = req.body;
 
     if (!token) {
       return res.status(400).json({ message: 'Google credential token is required.' });
@@ -298,8 +324,10 @@ export const googleLogin = async (req, res) => {
     }
 
     let user = await User.findOne({ email });
+    let isNewUser = false;
 
     if (!user) {
+      isNewUser = true;
       // Create user with Google login details and random password
       const dummyPassword = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       const salt = await bcrypt.genSalt(12);
@@ -321,6 +349,31 @@ export const googleLogin = async (req, res) => {
 
     setRefreshTokenCookie(res, refreshToken);
 
+    // Handle referral linking for new Google user registrations
+    if (isNewUser && referralCode) {
+      try {
+        const referrerUser = await User.findOne({ referralCode });
+        if (referrerUser) {
+          await Referral.create({
+            referrer: referrerUser._id,
+            referrerName: referrerUser.name,
+            referrerEmail: referrerUser.email,
+            referrerCode: referralCode,
+            referredUser: user._id,
+            referredName: user.name,
+            referredEmail: user.email,
+            type: 'registration'
+          });
+
+          // Increment referrer's count
+          referrerUser.referrals = (referrerUser.referrals || 0) + 1;
+          await referrerUser.save();
+        }
+      } catch (refError) {
+        console.error('Failed to link referral during Google registration:', refError.message);
+      }
+    }
+
     res.json({
       _id: user._id,
       name: user.name,
@@ -338,5 +391,30 @@ export const googleLogin = async (req, res) => {
   } catch (error) {
     console.error('Google login failed:', error.message);
     res.status(400).json({ message: 'Google authentication validation failed.' });
+  }
+};
+
+// Get referrals initiated by the logged-in user
+export const getMyReferrals = async (req, res) => {
+  try {
+    const referrals = await Referral.find({ referrer: req.user._id })
+      .select('referredName referredEmail type status rewardAmount createdAt')
+      .sort({ createdAt: -1 });
+    res.json(referrals);
+  } catch (error) {
+    console.error('Fetch my referrals failed:', error.message);
+    res.status(500).json({ message: 'Server error fetching referrals.' });
+  }
+};
+
+// Admin only: Get all referral transactions in the system for tracking spendings
+export const getReferralsAll = async (req, res) => {
+  try {
+    const referrals = await Referral.find({})
+      .sort({ createdAt: -1 });
+    res.json(referrals);
+  } catch (error) {
+    console.error('Fetch all referrals failed:', error.message);
+    res.status(500).json({ message: 'Server error fetching all referral tracking data.' });
   }
 };

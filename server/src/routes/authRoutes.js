@@ -6,9 +6,11 @@ import {
   refreshAccessToken, 
   getUserProfile, 
   updateUserProgress,
-  googleLogin
+  googleLogin,
+  getMyReferrals,
+  getReferralsAll
 } from '../controllers/authController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -21,5 +23,7 @@ router.post('/google-login', googleLogin);
 // Protected routes
 router.get('/profile', protect, getUserProfile);
 router.put('/progress', protect, updateUserProgress);
+router.get('/referrals/my', protect, getMyReferrals);
+router.get('/referrals/all', protect, authorizeRoles('admin'), getReferralsAll);
 
 export default router;
