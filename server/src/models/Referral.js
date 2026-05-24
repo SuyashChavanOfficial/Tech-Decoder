@@ -1,64 +1,85 @@
 import mongoose from 'mongoose';
 
+const statusHistorySchema = new mongoose.Schema({
+  status: {
+    type: String,
+    required: true
+  },
+  comment: {
+    type: String,
+    required: true
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const referralSchema = new mongoose.Schema({
   // Link to referrer (can be null if user is deleted)
-  referrer: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  referrer: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    default: null 
+    default: null
   },
   // Permanent fallback records to ensure historical traceability even if users are deleted
-  referrerName: { 
-    type: String, 
-    required: true 
+  referrerName: {
+    type: String,
+    required: true
   },
-  referrerEmail: { 
-    type: String, 
-    required: true 
+  referrerEmail: {
+    type: String,
+    required: true
   },
-  referrerCode: { 
-    type: String, 
-    required: true 
+  referrerCode: {
+    type: String,
+    required: true
   },
-  
+
   // Link to referred user (can be null if user is deleted)
-  referredUser: { 
-    type: mongoose.Schema.Types.ObjectId, 
+  referredUser: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    default: null 
+    default: null
   },
-  referredName: { 
-    type: String, 
-    required: true 
+  referredName: {
+    type: String,
+    required: true
   },
-  referredEmail: { 
-    type: String, 
-    required: true 
+  referredEmail: {
+    type: String,
+    required: true
   },
-  
-  type: { 
-    type: String, 
-    enum: ['registration', 'consultation'], 
-    default: 'registration' 
+
+  type: {
+    type: String,
+    enum: ['registration', 'consultation'],
+    default: 'registration'
   },
-  
+
   // Financial and Payout Tracking
   status: {
     type: String,
     enum: ['pending', 'successful', 'paid', 'cancelled'],
-    default: 'successful' // Default registration referrals are marked successful upon account creation
+    default: 'pending'
   },
   rewardAmount: {
     type: Number,
-    default: 100 // Default to 100 credits/currency unit per referral payout
+    default: 0
   },
   purchaseAmount: {
     type: Number,
-    default: 0 // The purchase amount paid by the referred user (if applicable)
+    default: 0
   },
   notes: {
     type: String,
     default: ''
+  },
+
+  // Audit log history of status updates
+  statusHistory: {
+    type: [statusHistorySchema],
+    default: []
   }
 }, {
   timestamps: true

@@ -418,3 +418,85 @@ export const getReferralsAll = async (req, res) => {
     res.status(500).json({ message: 'Server error fetching all referral tracking data.' });
   }
 };
+
+// Admin only: Update referral status and add comment/history
+export const updateReferralStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, comment } = req.body;
+
+    if (!status || !comment) {
+      return res.status(400).json({ message: 'Status and comment/reason are required.' });
+    }
+
+    const referral = await Referral.findById(id);
+    if (!referral) {
+      return res.status(404).json({ message: 'Referral record not found.' });
+    }
+
+    // Append to status history
+    referral.statusHistory.push({
+      status,
+      comment,
+      updatedAt: new Date()
+    });
+
+    // Update current status
+    referral.status = status;
+    await referral.save();
+
+    res.json(referral);
+  } catch (error) {
+    console.error('Update referral status failed:', error.message);
+    res.status(500).json({ message: 'Server error updating referral status.' });
+  }
+};
+
+// Admin only: Get all users on the platform
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password -refreshToken').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    console.error('Fetch all users failed:', error.message);
+    res.status(500).json({ message: 'Server error fetching all users.' });
+  }
+};
+
+// Admin only: Update a user's role and domain
+export const updateUserRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role, domain } = req.body;
+
+    if (!role) {
+      return res.status(400).json({ message: 'Role is required.' });
+    }
+
+    const validRoles = ['student', 'developer', 'admin'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ message: 'Invalid role selection.' });
+    }
+
+    const userToUpdate = await User.findById(id);
+    if (!userToUpdate) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    userToUpdate.role = role;
+    if (domain !== undefined) {
+      userToUpdate.domain = domain;
+    }
+
+    // Student domain must always be empty string
+    if (role === 'student') {
+      userToUpdate.domain = '';
+    }
+
+    await userToUpdate.save();
+    res.json({ message: 'User role updated successfully.', user: userToUpdate });
+  } catch (error) {
+    console.error('Update user role failed:', error.message);
+    res.status(500).json({ message: 'Server error updating user role.' });
+  }
+};

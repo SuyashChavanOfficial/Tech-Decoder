@@ -89,6 +89,38 @@ export const AuthProvider = ({ children }) => {
     loadProfile();
   }, []);
 
+  // Background profile sync polling to check for role updates automatically
+  useEffect(() => {
+    if (!user) return;
+    
+    const interval = setInterval(async () => {
+      // Visibility Guard: Skip polling if the browser tab is in the background
+      if (document.hidden) return;
+
+      try {
+        const profileRes = await API.get('/auth/profile');
+        // Deep compare user profiles to check for changes
+        if (
+          profileRes.data.role !== user.role ||
+          profileRes.data.domain !== user.domain ||
+          profileRes.data.name !== user.name ||
+          profileRes.data.email !== user.email ||
+          profileRes.data.avatar !== user.avatar
+        ) {
+          setUser(profileRes.data);
+        }
+      } catch (err) {
+        if (err.response?.status === 401) {
+          // Token is expired/invalid, log out the user automatically
+          setUser(null);
+          setAccessToken(null);
+        }
+      }
+    }, 600000); // Poll every 10 minutes to minimize server load
+
+    return () => clearInterval(interval);
+  }, [user]);
+
   const login = async (email, password) => {
     try {
       const res = await API.post('/auth/login', { email, password });
@@ -231,6 +263,50 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const getAllReferrals = async () => {
+    try {
+      const res = await API.get('/auth/referrals/all');
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to fetch referrals.' };
+    }
+  };
+
+  const updateReferralStatus = async (id, status, comment) => {
+    try {
+      const res = await API.put(`/auth/referrals/${id}/status`, { status, comment });
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to update status.' };
+    }
+  };
+
+  const getAllUsers = async () => {
+    try {
+      const res = await API.get('/auth/users');
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to fetch users.' };
+    }
+  };
+
+  const updateUserRole = async (id, role, domain) => {
+    try {
+      const res = await API.put(`/auth/users/${id}/role`, { role, domain });
+      // If the updated user is the currently logged-in user, sync the state immediately
+      if (user && user._id === id) {
+        setUser(prev => ({ 
+          ...prev, 
+          role, 
+          domain: role === 'student' ? '' : domain 
+        }));
+      }
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to update user role.' };
+    }
+  };
+
   const totalModules = 12;
   const completedChecklistCount = user
     ? (user.checklist ? user.checklist.filter(c => c.checked).length : 0)
@@ -258,7 +334,11 @@ export const AuthProvider = ({ children }) => {
         bookConsultation,
         submitInquiry,
         setReferrals,
-        loginWithGoogle
+        loginWithGoogle,
+        getAllReferrals,
+        updateReferralStatus,
+        getAllUsers,
+        updateUserRole
       }}
     >
       {children}

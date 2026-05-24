@@ -8,7 +8,10 @@ import {
   updateUserProgress,
   googleLogin,
   getMyReferrals,
-  getReferralsAll
+  getReferralsAll,
+  updateReferralStatus,
+  getAllUsers,
+  updateUserRole
 } from '../controllers/authController.js';
 import { protect, authorizeRoles } from '../middleware/authMiddleware.js';
 
@@ -25,5 +28,8 @@ router.get('/profile', protect, getUserProfile);
 router.put('/progress', protect, updateUserProgress);
 router.get('/referrals/my', protect, getMyReferrals);
 router.get('/referrals/all', protect, authorizeRoles('admin'), getReferralsAll);
+router.put('/referrals/:id/status', protect, authorizeRoles('admin'), updateReferralStatus);
+router.get('/users', protect, authorizeRoles('admin'), getAllUsers);
+router.put('/users/:id/role', protect, authorizeRoles('admin'), updateUserRole);
 
 export default router;

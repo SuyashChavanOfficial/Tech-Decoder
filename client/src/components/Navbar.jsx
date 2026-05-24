@@ -9,6 +9,7 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,6 +29,21 @@ export default function Navbar() {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [location]);
+
+  // Click outside to close profile dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.profile-dropdown-container')) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    if (profileDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileDropdownOpen]);
 
   // Automatically store referral code and redirect to dedicated booking page
   useEffect(() => {
@@ -127,32 +143,59 @@ export default function Navbar() {
             >
               Referral
             </NavLink>
-            <NavLink 
-              to="/dashboard" 
-              className={({ isActive }) => 
-                `font-body-md text-body-md transition-colors duration-300 pb-1 ${isActive ? 'text-primary font-bold border-b-2 border-primary' : 'text-on-surface-variant hover:text-on-surface'}`
-              }
-            >
-              Dashboard
-            </NavLink>
           </div>
 
           {/* CTAs */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10">
+              <div className="relative profile-dropdown-container">
+                <button 
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-all active:scale-95 focus:outline-none border border-transparent hover:border-white/5 cursor-pointer"
+                >
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 flex-shrink-0">
                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                   </div>
-                  <span className="text-on-surface font-label-sm text-label-sm">{user.name}</span>
-                </div>
-                <button 
-                  onClick={() => { logout(); navigate('/'); }}
-                  className="text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm uppercase tracking-wider active:scale-95"
-                >
-                  Logout
+                  <span className="text-on-surface font-label-sm text-label-sm max-w-[120px] truncate">{user.name}</span>
+                  <span className={`material-symbols-outlined text-[16px] text-on-surface-variant transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180' : ''}`}>
+                    keyboard_arrow_down
+                  </span>
                 </button>
+                
+                <AnimatePresence>
+                  {profileDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-48 rounded-xl glass-panel border border-white/10 py-2 shadow-2xl z-50 overflow-hidden"
+                    >
+                      <button 
+                        onClick={() => { setProfileDropdownOpen(false); navigate('/dashboard?tab=overview'); }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">dashboard</span>
+                        <span>Dashboard</span>
+                      </button>
+                      <button 
+                        onClick={() => { setProfileDropdownOpen(false); navigate('/dashboard?tab=profile'); }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">person</span>
+                        <span>Profile</span>
+                      </button>
+                      <hr className="border-white/5 my-1" />
+                      <button 
+                        onClick={() => { setProfileDropdownOpen(false); logout(); navigate('/'); }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">logout</span>
+                        <span>Logout</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             ) : (
               <>
@@ -227,30 +270,39 @@ export default function Navbar() {
             >
               Referral
             </NavLink>
-            <NavLink 
-              to="/dashboard" 
-              className={({ isActive }) => 
-                `font-body-md text-body-md py-2 ${isActive ? 'text-primary font-bold' : 'text-on-surface-variant'}`
-              }
-            >
-              Dashboard
-            </NavLink>
             <hr className="border-white/10" />
             <div className="flex flex-col space-y-3 pt-2">
               {user ? (
                 <>
-                  <div className="flex items-center space-x-3 py-2">
+                  <div className="flex items-center space-x-3 py-2 border-b border-white/5 pb-4 mb-2">
                     <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border border-white/10 object-cover" />
                     <div>
                       <div className="text-on-surface font-semibold">{user.name}</div>
                       <div className="text-on-surface-variant text-xs">{user.domain}</div>
                     </div>
                   </div>
-                  <button 
-                    onClick={() => { logout(); navigate('/'); }}
-                    className="w-full py-3 rounded-lg border border-white/10 text-on-surface-variant hover:text-on-surface text-center font-label-sm text-label-sm uppercase tracking-wider"
+                  <Link 
+                    to="/dashboard?tab=overview" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-3 px-4 rounded-lg bg-white/5 text-on-surface hover:bg-white/10 transition-colors flex items-center space-x-3 font-label-sm text-label-sm uppercase tracking-wider"
                   >
-                    Logout
+                    <span className="material-symbols-outlined text-[20px]">dashboard</span>
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link 
+                    to="/dashboard?tab=profile" 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full py-3 px-4 rounded-lg bg-white/5 text-on-surface hover:bg-white/10 transition-colors flex items-center space-x-3 font-label-sm text-label-sm uppercase tracking-wider"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">person</span>
+                    <span>Profile</span>
+                  </Link>
+                  <button 
+                    onClick={() => { logout(); navigate('/'); setMobileMenuOpen(false); }}
+                    className="w-full py-3 px-4 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors flex items-center justify-center space-x-3 font-label-sm text-label-sm uppercase tracking-wider cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">logout</span>
+                    <span>Logout</span>
                   </button>
                 </>
               ) : (

@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     enum: ['student', 'developer', 'admin'], 
     default: 'student' 
   },
-  domain: { type: String, default: 'Backend Engineering' },
+  domain: { type: String, default: '' },
   avatar: { 
     type: String, 
     default: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAvrYQbpk584ALwTACqL9kqJYe_-m7dsiX07EqLjKmTcxjm-E7HeYIyGbB1FQewyGJZSJ92YI7o_UigaHiBQGLPKMQJQdGzMxaFUyCuVtEuEyOzttt1fIlq1lw_ARwa4O0Ut-toKk_rjE70q0fUjpjqWYLQXalPA9qLIUY4eZ5N_Kg83XSAAJ4qPfPxdZIDNHOAJBPKSIdXA0K21281IzkxPZOVyp9kVS09aO-r0KR9qIwaINcuoNe7Hwn15Mvtrmk_X9SEXopajac'
