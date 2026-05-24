@@ -175,7 +175,7 @@ export const logoutUser = async (req, res) => {
   }
 };
 
-// Refresh Access Token endpoint (Rotates Refresh Tokens)
+// Refresh Access Token endpoint (Verifies and refreshes access tokens)
 export const refreshAccessToken = async (req, res) => {
   try {
     const cookies = parseCookies(req);
@@ -185,29 +185,12 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(401).json({ message: 'Not authorized, no refresh token.' });
     }
 
-    // Find user with this token
-    const user = await User.findOne({ refreshToken: token });
-    if (!user) {
-      return res.status(403).json({ message: 'Token reuse or invalid session.' });
-    }
-
-    // Verify token
+    // Verify token first to get user ID
+    let decoded;
     try {
-      const decoded = jwt.verify(token, getSecret('JWT_REFRESH_SECRET'));
-      
-      // Token is valid: rotate token
-      const newAccessToken = generateAccessToken(user._id);
-      const newRefreshToken = generateRefreshToken(user._id);
-
-      user.refreshToken = newRefreshToken;
-      await user.save();
-
-      setRefreshTokenCookie(res, newRefreshToken);
-      res.json({ token: newAccessToken });
+      decoded = jwt.verify(token, getSecret('JWT_REFRESH_SECRET'));
     } catch (err) {
-      // Token expired or invalid
-      user.refreshToken = '';
-      await user.save();
+      // Refresh token is expired or signature is invalid (e.g. server restarted with new ephemeral key)
       res.clearCookie('refreshToken', { 
         path: '/api/auth/refresh', 
         httpOnly: true,
@@ -216,6 +199,24 @@ export const refreshAccessToken = async (req, res) => {
       });
       return res.status(401).json({ message: 'Refresh token expired or invalid.' });
     }
+
+    // Find user by ID
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: 'User not found.' });
+    }
+
+    // Check if the token matches the stored one
+    if (user.refreshToken !== token) {
+      return res.status(403).json({ message: 'Invalid session or token mismatch.' });
+    }
+
+    // Token is valid: generate a new access token
+    const newAccessToken = generateAccessToken(user._id);
+
+    // Note: Reusing the same valid refresh token (30-day life) to prevent StrictMode
+    // or tab-concurrency race conditions.
+    res.json({ token: newAccessToken });
   } catch (error) {
     console.error('Token refresh failed:', error.message);
     res.status(500).json({ message: 'Server error during token refresh.' });
