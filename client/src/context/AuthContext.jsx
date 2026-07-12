@@ -6,10 +6,10 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 // In development, use '' (empty) so Vite proxy handles /api/* same-origin
-// In production, use the full Render backend URL
-const BACKEND_URL = import.meta.env.MODE === 'development' 
-  ? '' 
-  : 'https://tech-decoder-backend.onrender.com';
+// In production, use the configured backend URL
+const BACKEND_URL = import.meta.env.MODE === 'development'
+  ? ''
+  : import.meta.env.VITE_BACKEND_URL;
 
 const API = axios.create({
   baseURL: `${BACKEND_URL}/api`,
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
         const res = await axios.post(`${BACKEND_URL}/api/auth/refresh`, {}, { withCredentials: true });
         const token = res.data.token;
         setAccessToken(token);
-        
+
         const profileRes = await API.get('/auth/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }) => {
   // Background profile sync polling to check for role updates automatically
   useEffect(() => {
     if (!user) return;
-    
+
     const interval = setInterval(async () => {
       // Visibility Guard: Skip polling if the browser tab is in the background
       if (document.hidden) return;
@@ -128,9 +128,9 @@ export const AuthProvider = ({ children }) => {
       setAccessToken(res.data.token);
       return { success: true };
     } catch (err) {
-      return { 
-        success: false, 
-        message: err.response?.data?.message || 'Authentication failed. Please check credentials.' 
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Authentication failed. Please check credentials.'
       };
     }
   };
@@ -152,16 +152,16 @@ export const AuthProvider = ({ children }) => {
       const res = await API.post('/auth/register', { name, email, password, referralCode });
       setUser(res.data);
       setAccessToken(res.data.token);
-      
+
       // Clean up sessionStorage after successful registration
       if (referralCode) {
         sessionStorage.removeItem('referralCode');
       }
       return { success: true };
     } catch (err) {
-      return { 
-        success: false, 
-        message: err.response?.data?.message || 'Registration failed.' 
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Registration failed.'
       };
     }
   };
@@ -178,13 +178,13 @@ export const AuthProvider = ({ children }) => {
 
   const toggleChecklist = (id) => {
     if (user) {
-      const updatedChecklist = user.checklist.map(item => 
+      const updatedChecklist = user.checklist.map(item =>
         item._id === id || item.id === id ? { ...item, checked: !item.checked } : item
       );
       setUser(prev => ({ ...prev, checklist: updatedChecklist }));
       syncProgress({ checklist: updatedChecklist });
     } else {
-      setLocalChecklist(prev => prev.map(item => 
+      setLocalChecklist(prev => prev.map(item =>
         item.id === id || item._id === id ? { ...item, checked: !item.checked } : item
       ));
     }
@@ -249,16 +249,16 @@ export const AuthProvider = ({ children }) => {
       const res = await API.post('/auth/google-login', { token: googleToken, referralCode });
       setUser(res.data);
       setAccessToken(res.data.token);
-      
+
       // Clean up sessionStorage after successful registration
       if (referralCode) {
         sessionStorage.removeItem('referralCode');
       }
       return { success: true };
     } catch (err) {
-      return { 
-        success: false, 
-        message: err.response?.data?.message || 'Google authentication failed.' 
+      return {
+        success: false,
+        message: err.response?.data?.message || 'Google authentication failed.'
       };
     }
   };
@@ -295,10 +295,10 @@ export const AuthProvider = ({ children }) => {
       const res = await API.put(`/auth/users/${id}/role`, { role, domain });
       // If the updated user is the currently logged-in user, sync the state immediately
       if (user && user._id === id) {
-        setUser(prev => ({ 
-          ...prev, 
-          role, 
-          domain: role === 'student' ? '' : domain 
+        setUser(prev => ({
+          ...prev,
+          role,
+          domain: role === 'student' ? '' : domain
         }));
       }
       return { success: true, data: res.data };
