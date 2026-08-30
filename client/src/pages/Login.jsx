@@ -19,6 +19,7 @@ export default function Login() {
   const [authPassword, setAuthPassword] = useState('');
   const [authName, setAuthName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   
   // Alerts / Modals States
   const [alertOpen, setAlertOpen] = useState(false);
@@ -32,6 +33,13 @@ export default function Login() {
     if (authPassword.length < 6) {
       setAlertTitle('Validation Error');
       setAlertMessage('Password must be at least 6 characters long.');
+      setAlertOpen(true);
+      return;
+    }
+
+    if (authMode === 'signup' && !agreedToTerms) {
+      setAlertTitle('Terms & Conditions Required');
+      setAlertMessage('You must agree to the Terms & Conditions to create an account.');
       setAlertOpen(true);
       return;
     }
@@ -90,7 +98,7 @@ export default function Login() {
 
             <div className="flex flex-col gap-4">
               {/* Google Login Component */}
-              <div className="w-full flex justify-center">
+              <div className="w-full flex flex-col items-center">
                 <GoogleLogin
                   onSuccess={async (credentialResponse) => {
                     setAlertTitle('Google Authentication');
@@ -118,6 +126,9 @@ export default function Login() {
                   size="large"
                   width="100%"
                 />
+                <p className="text-[11px] text-center text-on-surface-variant mt-3 px-2">
+                  By continuing with Google, you agree to our <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Terms & Conditions</Link>.
+                </p>
               </div>
 
               <div className="relative flex items-center py-2">
@@ -178,6 +189,21 @@ export default function Login() {
                     </button>
                   </div>
                 </div>
+
+                {authMode === 'signup' && (
+                  <div className="flex items-start gap-3 mt-1">
+                    <input 
+                      type="checkbox" 
+                      id="termsCheckbox"
+                      checked={agreedToTerms}
+                      onChange={(e) => setAgreedToTerms(e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-white/20 bg-surface-container-high text-primary focus:ring-primary focus:ring-offset-background"
+                    />
+                    <label htmlFor="termsCheckbox" className="font-body-md text-sm text-on-surface-variant">
+                      I have read and agree to the <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Terms & Conditions</Link>.
+                    </label>
+                  </div>
+                )}
 
                 <button 
                   type="submit"
