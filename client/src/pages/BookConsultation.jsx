@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -16,9 +16,29 @@ export default function BookConsultation() {
     email: '',
     projectDescription: '',
     hasReferral: false,
-    referralCode: ''
+    referralCode: '',
+    plan: ''
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const planOptions = [
+    { value: '', label: '-- No Specific Plan --' },
+    { value: 'Basic Project', label: 'Basic Project - ₹10,000' },
+    { value: 'Priority Project', label: 'Priority Project - ₹12,000' },
+    { value: 'Complete Project Package', label: 'Complete Project Package - ₹14,999' }
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     // Check URL parameters first, fallback to sessionStorage for referral code
@@ -30,9 +50,10 @@ export default function BookConsultation() {
       whatsapp: '',
       college: '',
       email: user?.email || '',
-      projectDescription: tier ? `Interested in the ${decodeURIComponent(tier)} plan. ` : '',
+      projectDescription: '',
       hasReferral: false,
-      referralCode: urlRef.toUpperCase()
+      referralCode: urlRef.toUpperCase(),
+      plan: tier ? decodeURIComponent(tier) : ''
     });
   }, [user, searchParams]);
 
@@ -44,7 +65,8 @@ export default function BookConsultation() {
       college: formData.college,
       email: formData.email,
       projectDescription: formData.projectDescription,
-      referralCode: formData.hasReferral ? formData.referralCode : ''
+      referralCode: formData.hasReferral ? formData.referralCode : '',
+      plan: formData.plan
     };
     bookConsultation(submissionData);
     setSubmitted(true);
@@ -87,10 +109,10 @@ export default function BookConsultation() {
                   Your request has been received. Our team will contact you shortly via WhatsApp to confirm details.
                 </p>
                 <button
-                  onClick={() => navigate(user ? '/dashboard' : '/')}
+                  onClick={() => navigate('/')}
                   className="bg-primary text-on-primary px-8 py-3 rounded-lg font-label-sm text-label-sm uppercase tracking-wider glow-button hover:opacity-90 transition-all cursor-pointer"
                 >
-                  {user ? 'Go to Dashboard' : 'Back to Home'}
+                  Back to Home
                 </button>
               </motion.div>
             ) : (
@@ -108,10 +130,70 @@ export default function BookConsultation() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-1.5 mb-2">
+                    <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Selected Plan</label>
+                    <div className="relative" ref={dropdownRef}>
+                      <div 
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="bg-surface-container-low border border-white/10 rounded-lg px-4 py-3 text-on-surface font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all w-full cursor-pointer flex items-center justify-between"
+                      >
+                        <div className={`flex items-center gap-3 ${formData.plan ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+                          {formData.plan ? (
+                            <span className="material-symbols-outlined text-[20px] text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                          ) : (
+                            <div className="w-[20px]"></div>
+                          )}
+                          <span>
+                            {formData.plan ? planOptions.find(p => p.value === formData.plan)?.label || formData.plan : '-- No Specific Plan --'}
+                          </span>
+                        </div>
+                        <span className={`material-symbols-outlined text-on-surface-variant transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}>
+                          expand_more
+                        </span>
+                      </div>
+                      
+                      <AnimatePresence>
+                        {isDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
+                            className="absolute top-[calc(100%+0.5rem)] left-0 w-full rounded-lg border border-white/10 bg-[#1E1E1E] overflow-hidden shadow-2xl z-50 origin-top"
+                            style={{ willChange: 'transform, opacity' }}
+                          >
+                            <div className="flex flex-col">
+                              {planOptions.map((option) => (
+                                <div
+                                  key={option.value}
+                                  onClick={() => {
+                                    setFormData({ ...formData, plan: option.value });
+                                    setIsDropdownOpen(false);
+                                  }}
+                                  className={`px-4 py-3 cursor-pointer flex items-center gap-3 transition-colors hover:bg-white/10 ${formData.plan === option.value ? 'bg-primary/20 text-primary font-bold' : 'text-on-surface'}`}
+                                >
+                                  {formData.plan === option.value ? (
+                                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+                                  ) : (
+                                    <div className="w-[20px]"></div>
+                                  )}
+                                  <span>{option.label}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+
                   <div className="flex flex-col gap-1.5">
-                    <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Full Name</label>
+                    <label htmlFor="name" className="font-label-sm text-label-sm text-on-surface-variant uppercase">Full Name</label>
                     <input 
                       required
+                      id="name"
+                      name="name"
+                      autoComplete="name"
                       type="text" 
                       placeholder="Ada Lovelace"
                       value={formData.name}
@@ -121,9 +203,12 @@ export default function BookConsultation() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">WhatsApp Number</label>
+                    <label htmlFor="whatsapp" className="font-label-sm text-label-sm text-on-surface-variant uppercase">WhatsApp Number</label>
                     <input 
                       required
+                      id="whatsapp"
+                      name="whatsapp"
+                      autoComplete="tel"
                       type="tel" 
                       placeholder="919876543210"
                       maxLength={12}
@@ -140,9 +225,12 @@ export default function BookConsultation() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">College / University</label>
+                    <label htmlFor="college" className="font-label-sm text-label-sm text-on-surface-variant uppercase">College / University</label>
                     <input 
                       required
+                      id="college"
+                      name="college"
+                      autoComplete="organization"
                       type="text" 
                       placeholder="IIT Bombay"
                       value={formData.college}
@@ -152,8 +240,11 @@ export default function BookConsultation() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Email Address (Optional)</label>
+                    <label htmlFor="email" className="font-label-sm text-label-sm text-on-surface-variant uppercase">Email Address (Optional)</label>
                     <input 
+                      id="email"
+                      name="email"
+                      autoComplete="email"
                       type="email" 
                       placeholder="ada@example.com"
                       value={formData.email}

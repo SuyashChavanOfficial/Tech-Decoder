@@ -4,7 +4,7 @@ import Referral from '../models/Referral.js';
 
 export const createConsultation = async (req, res) => {
   try {
-    const { name, whatsapp, college, email, projectDescription, referralCode } = req.body;
+    const { name, whatsapp, college, email, projectDescription, referralCode, plan } = req.body;
 
     if (!name || !whatsapp || !college) {
       return res.status(400).json({ message: 'Name, whatsapp, and college are required.' });
@@ -24,7 +24,8 @@ export const createConsultation = async (req, res) => {
       college,
       email: email || '',
       projectDescription: projectDescription || '',
-      referralCode: referralCode || ''
+      referralCode: referralCode || '',
+      plan: plan || ''
     });
 
     // Track this booking as a referral transaction if code is present

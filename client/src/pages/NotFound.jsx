@@ -37,10 +37,10 @@ export default function NotFound() {
           </div>
 
           <button
-            onClick={() => navigate(user ? '/dashboard' : '/')}
+            onClick={() => navigate('/')}
             className="w-full bg-primary text-on-primary py-3.5 rounded-lg font-label-sm text-label-sm uppercase tracking-wider glow-button hover:opacity-90 transition-all cursor-pointer mt-4"
           >
-            {user ? 'Back to Dashboard' : 'Back to Home'}
+            Back to Home
           </button>
         </div>
       </motion.section>

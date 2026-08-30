@@ -27,7 +27,7 @@ export default function Footer() {
         </div>
         <div className="flex flex-col space-y-3">
           <span className="font-label-sm text-label-sm text-on-surface uppercase tracking-wider mb-2">Platforms</span>
-          <Link to="/dashboard" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors text-sm">Dashboard</Link>
+          <Link to="/contact" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors text-sm">Contact</Link>
           <Link to="/about" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors text-sm">Mentorship</Link>
           <Link to="/pricing" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors text-sm">Pricing Plans</Link>
         </div>
