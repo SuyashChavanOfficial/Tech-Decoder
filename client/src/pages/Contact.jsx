@@ -84,7 +84,7 @@ export default function Contact() {
           transition={{ duration: 0.8, delay: 0.1 }}
           className="grid grid-cols-1 sm:grid-cols-2 gap-6"
         >
-          <div className="glass-panel p-6 rounded-lg hover:border-white/20 transition-colors flex items-center gap-4">
+          <a href="mailto:techdecoderlab@gmail.com" className="glass-panel p-6 rounded-lg hover:border-white/20 transition-colors flex items-center gap-4 cursor-pointer">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                 mail
@@ -92,10 +92,10 @@ export default function Contact() {
             </div>
             <div>
               <h3 className="font-body-md text-body-md text-on-surface font-semibold">Email Us</h3>
-              <p className="font-body-md text-body-md text-on-surface-variant text-sm">hello@techdecoder.dev</p>
+              <p className="font-body-md text-body-md text-on-surface-variant text-sm hover:text-primary transition-colors">techdecoderlab@gmail.com</p>
             </div>
-          </div>
-          <div className="glass-panel p-6 rounded-lg hover:border-white/20 transition-colors flex items-center gap-4">
+          </a>
+          <a href="https://wa.me/918275270901" target="_blank" rel="noopener noreferrer" className="glass-panel p-6 rounded-lg hover:border-white/20 transition-colors flex items-center gap-4 cursor-pointer">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
               <span className="material-symbols-outlined text-primary text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
                 forum
@@ -103,9 +103,9 @@ export default function Contact() {
             </div>
             <div>
               <h3 className="font-body-md text-body-md text-on-surface font-semibold">WhatsApp Support</h3>
-              <p className="font-body-md text-body-md text-on-surface-variant text-sm">+1 (555) 019-2834</p>
+              <p className="font-body-md text-body-md text-on-surface-variant text-sm hover:text-primary transition-colors">+91 8275270901</p>
             </div>
-          </div>
+          </a>
         </motion.div>
 
         {/* Project Inquiry Card */}

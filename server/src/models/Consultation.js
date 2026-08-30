@@ -7,6 +7,7 @@ const consultationSchema = new mongoose.Schema({
   email: { type: String, default: '' },
   projectDescription: { type: String, default: '' },
   referralCode: { type: String, default: '' },
+  referralOptIn: { type: Boolean, default: false },
   plan: { 
     type: String, 
     enum: ['', 'Basic Project', 'Priority Project', 'Complete Project Package'],

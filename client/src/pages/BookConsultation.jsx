@@ -51,7 +51,7 @@ export default function BookConsultation() {
       college: '',
       email: user?.email || '',
       projectDescription: '',
-      hasReferral: false,
+      hasReferral: !!urlRef,
       referralCode: urlRef.toUpperCase(),
       plan: tier ? decodeURIComponent(tier) : ''
     });
@@ -65,7 +65,8 @@ export default function BookConsultation() {
       college: formData.college,
       email: formData.email,
       projectDescription: formData.projectDescription,
-      referralCode: formData.hasReferral ? formData.referralCode : '',
+      referralCode: formData.referralCode,
+      referralOptIn: formData.hasReferral,
       plan: formData.plan
     };
     bookConsultation(submissionData);
@@ -273,7 +274,7 @@ export default function BookConsultation() {
                       className="w-4 h-4 rounded border-white/10 bg-white/5 text-primary focus:ring-primary focus:ring-offset-background cursor-pointer accent-primary"
                     />
                     <label htmlFor="hasReferralPage" className="font-body-md text-body-md text-on-surface-variant cursor-pointer select-none">
-                      I have a referral code
+                      Opt-in to the referral scheme to claim exclusive perks
                     </label>
                   </div>
 

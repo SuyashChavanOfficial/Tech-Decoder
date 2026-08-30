@@ -4,6 +4,7 @@ import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
 import Referral from '../models/Referral.js';
 import { generateAccessToken, generateRefreshToken, getSecret } from '../middleware/authMiddleware.js';
+import { calculateReferralCredits } from '../utils/referralMath.js';
 
 // Helper to parse cookies from request headers
 const parseCookies = (req) => {
@@ -92,9 +93,6 @@ export const registerUser = async (req, res) => {
               type: 'registration'
             });
 
-            // Increment referrer's count
-            referrerUser.referrals = (referrerUser.referrals || 0) + 1;
-            await referrerUser.save();
           }
         } catch (refError) {
           console.error('Failed to link referral during registration:', refError.message);
@@ -111,6 +109,7 @@ export const registerUser = async (req, res) => {
         modulesCompleted: user.modulesCompleted,
         checklist: user.checklist,
         referrals: user.referrals,
+        referralCredits: user.referralCredits,
         referralCode: user.referralCode,
         uploadedFiles: user.uploadedFiles,
         token: accessToken
@@ -151,10 +150,12 @@ export const loginUser = async (req, res) => {
     // Lazily sync real referral count
     const referralsCount = await Referral.countDocuments({ 
       referrer: user._id, 
+      type: 'consultation',
       status: { $in: ['successful', 'paid'] } 
     });
     if (user.referrals !== referralsCount) {
       user.referrals = referralsCount;
+      user.referralCredits = calculateReferralCredits(referralsCount);
     }
 
     await user.save();
@@ -172,6 +173,7 @@ export const loginUser = async (req, res) => {
       modulesCompleted: user.modulesCompleted,
       checklist: user.checklist,
       referrals: user.referrals,
+      referralCredits: user.referralCredits,
       referralCode: user.referralCode,
       uploadedFiles: user.uploadedFiles,
       token: accessToken
@@ -266,10 +268,12 @@ export const getUserProfile = async (req, res) => {
       // Lazily sync real referral count
       const referralsCount = await Referral.countDocuments({ 
         referrer: user._id, 
+        type: 'consultation',
         status: { $in: ['successful', 'paid'] } 
       });
       if (user.referrals !== referralsCount) {
         user.referrals = referralsCount;
+        user.referralCredits = calculateReferralCredits(referralsCount);
         await user.save();
       }
       res.json(user);
@@ -384,9 +388,6 @@ export const googleLogin = async (req, res) => {
             type: 'registration'
           });
 
-          // Increment referrer's count
-          referrerUser.referrals = (referrerUser.referrals || 0) + 1;
-          await referrerUser.save();
         }
       } catch (refError) {
         console.error('Failed to link referral during Google registration:', refError.message);
@@ -396,10 +397,12 @@ export const googleLogin = async (req, res) => {
     // Lazily sync real referral count
     const referralsCount = await Referral.countDocuments({ 
       referrer: user._id, 
+      type: 'consultation',
       status: { $in: ['successful', 'paid'] } 
     });
     if (user.referrals !== referralsCount) {
       user.referrals = referralsCount;
+      user.referralCredits = calculateReferralCredits(referralsCount);
       await user.save();
     }
 
@@ -413,6 +416,7 @@ export const googleLogin = async (req, res) => {
       modulesCompleted: user.modulesCompleted,
       checklist: user.checklist,
       referrals: user.referrals,
+      referralCredits: user.referralCredits,
       referralCode: user.referralCode,
       uploadedFiles: user.uploadedFiles,
       token: accessToken
@@ -478,9 +482,13 @@ export const updateReferralStatus = async (req, res) => {
     if (referral.referrer) {
       const count = await Referral.countDocuments({ 
         referrer: referral.referrer, 
+        type: 'consultation',
         status: { $in: ['successful', 'paid'] } 
       });
-      await User.findByIdAndUpdate(referral.referrer, { referrals: count });
+      await User.findByIdAndUpdate(referral.referrer, { 
+        referrals: count,
+        referralCredits: calculateReferralCredits(count)
+      });
     }
 
     res.json(referral);

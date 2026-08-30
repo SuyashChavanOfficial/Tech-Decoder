@@ -263,6 +263,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const getMyReferrals = async () => {
+    try {
+      const res = await API.get('/auth/referrals/my');
+      return { success: true, data: res.data };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to fetch your referrals.' };
+    }
+  };
+
   const getAllReferrals = async () => {
     try {
       const res = await API.get('/auth/referrals/all');
@@ -323,6 +332,7 @@ export const AuthProvider = ({ children }) => {
         checklist: user ? user.checklist : localChecklist,
         uploadedFiles: user ? user.uploadedFiles : localFiles,
         referrals: user ? user.referrals : localReferrals,
+        referralCredits: user ? user.referralCredits : localReferrals * 100,
         referralCode: user ? user.referralCode : null,
         progressPercentage,
         login,
@@ -335,6 +345,7 @@ export const AuthProvider = ({ children }) => {
         submitInquiry,
         setReferrals,
         loginWithGoogle,
+        getMyReferrals,
         getAllReferrals,
         updateReferralStatus,
         getAllUsers,

@@ -1,16 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ReferralShare from '../components/ReferralShare';
 
 export default function Referral() {
-  const { user, loading, referralCode, referrals, setReferrals } = useAuth();
+  const { user, loading, referralCode, referrals, referralCredits, getMyReferrals } = useAuth();
   const location = useLocation();
+  const [history, setHistory] = useState([]);
+  const [fetchingHistory, setFetchingHistory] = useState(false);
 
-  const triggerMockReferral = () => {
-    setReferrals(prev => prev + 1);
-  };
+  useEffect(() => {
+    if (user) {
+      setFetchingHistory(true);
+      getMyReferrals().then(res => {
+        if (res.success) {
+          setHistory(res.data);
+        }
+        setFetchingHistory(false);
+      });
+    }
+  }, [user]);
 
   return (
     <main className="flex-grow pt-32 pb-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto w-full">
@@ -148,7 +158,7 @@ export default function Referral() {
               account_balance_wallet
             </span>
             <h3 className="font-headline-md text-headline-md text-on-surface mb-1">
-              {user ? `$${referrals * 100}` : '—'}
+              {user ? `₹ ${referralCredits || 0}` : '—'}
             </h3>
             <p className="font-body-md text-body-md text-on-surface-variant">
               Credits Earned
@@ -189,6 +199,93 @@ export default function Referral() {
           </div>
         </motion.div>
       </section>
+
+      {/* Referral History Table */}
+      {user && (
+        <section className="mt-24 max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            <h3 className="font-headline-md text-headline-md text-on-surface mb-6 flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>history</span>
+              Your Referral History
+            </h3>
+            
+            <div className="glass-panel rounded-xl overflow-hidden border border-white/10">
+              {fetchingHistory ? (
+                <div className="p-8 flex items-center justify-center text-on-surface-variant">
+                  <span className="material-symbols-outlined animate-spin mr-3">progress_activity</span>
+                  Loading history...
+                </div>
+              ) : history.length === 0 ? (
+                <div className="p-12 flex flex-col items-center justify-center text-center">
+                  <span className="material-symbols-outlined text-[48px] text-white/10 mb-4">group_off</span>
+                  <p className="text-on-surface-variant font-body-md">You haven't referred anyone yet.</p>
+                  <p className="text-white/40 text-sm mt-1">Share your link to get started!</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-surface-container-high/50 border-b border-white/10">
+                        <th className="px-6 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">User</th>
+                        <th className="px-6 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Type</th>
+                        <th className="px-6 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Status</th>
+                        <th className="px-6 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Reward</th>
+                        <th className="px-6 py-4 font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant font-semibold">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {history.map((item) => (
+                        <tr key={item._id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="font-body-md text-on-surface">{item.referredName}</div>
+                            <div className="text-xs text-on-surface-variant mt-0.5">{item.referredEmail}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="text-sm text-on-surface-variant capitalize">{item.type}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col items-start gap-1">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                                item.status === 'successful' || item.status === 'paid' 
+                                  ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                                  : item.status === 'cancelled'
+                                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                    : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                              }`}>
+                                {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                              </span>
+                              
+                              {item.status === 'cancelled' && item.statusHistory?.length > 0 && (
+                                <span className="text-[11px] text-red-400/80 mt-1 max-w-[200px] truncate" title={item.statusHistory[item.statusHistory.length - 1].comment}>
+                                  Reason: {item.statusHistory[item.statusHistory.length - 1].comment}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 font-body-md">
+                            {item.status === 'successful' || item.status === 'paid' ? (
+                              <span className="text-green-400">₹500</span>
+                            ) : (
+                              <span className="text-on-surface-variant">—</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-on-surface-variant">
+                            {new Date(item.createdAt).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </section>
+      )}
     </main>
   );
 }
