@@ -11,7 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const from = location.state?.from || '/dashboard';
+  const from = location.state?.from || '/';
   const [authMode, setAuthMode] = useState('signin');
   
   // Auth Form Fields

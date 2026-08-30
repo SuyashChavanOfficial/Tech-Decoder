@@ -109,10 +109,10 @@ export default function BookConsultation() {
                   Your request has been received. Our team will contact you shortly via WhatsApp to confirm details.
                 </p>
                 <button
-                  onClick={() => navigate(user ? '/dashboard' : '/')}
+                  onClick={() => navigate('/')}
                   className="bg-primary text-on-primary px-8 py-3 rounded-lg font-label-sm text-label-sm uppercase tracking-wider glow-button hover:opacity-90 transition-all cursor-pointer"
                 >
-                  {user ? 'Go to Dashboard' : 'Back to Home'}
+                  Back to Home
                 </button>
               </motion.div>
             ) : (

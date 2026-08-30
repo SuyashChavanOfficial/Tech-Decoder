@@ -171,21 +171,7 @@ export default function Navbar() {
                       transition={{ duration: 0.2 }}
                       className="absolute right-0 mt-2 w-48 rounded-xl glass-panel border border-white/10 py-2 shadow-2xl z-50 overflow-hidden"
                     >
-                      <button 
-                        onClick={() => { setProfileDropdownOpen(false); navigate('/dashboard?tab=overview'); }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">dashboard</span>
-                        <span>Dashboard</span>
-                      </button>
-                      <button 
-                        onClick={() => { setProfileDropdownOpen(false); navigate('/dashboard?tab=profile'); }}
-                        className="w-full text-left px-4 py-2.5 text-sm text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">person</span>
-                        <span>Profile</span>
-                      </button>
-                      <hr className="border-white/5 my-1" />
+
                       <button 
                         onClick={() => { setProfileDropdownOpen(false); logout(); navigate('/'); }}
                         className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
@@ -281,22 +267,7 @@ export default function Navbar() {
                       <div className="text-on-surface-variant text-xs">{user.domain}</div>
                     </div>
                   </div>
-                  <Link 
-                    to="/dashboard?tab=overview" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full py-3 px-4 rounded-lg bg-white/5 text-on-surface hover:bg-white/10 transition-colors flex items-center space-x-3 font-label-sm text-label-sm uppercase tracking-wider"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">dashboard</span>
-                    <span>Dashboard</span>
-                  </Link>
-                  <Link 
-                    to="/dashboard?tab=profile" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full py-3 px-4 rounded-lg bg-white/5 text-on-surface hover:bg-white/10 transition-colors flex items-center space-x-3 font-label-sm text-label-sm uppercase tracking-wider"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">person</span>
-                    <span>Profile</span>
-                  </Link>
+
                   <button 
                     onClick={() => { logout(); navigate('/'); setMobileMenuOpen(false); }}
                     className="w-full py-3 px-4 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-colors flex items-center justify-center space-x-3 font-label-sm text-label-sm uppercase tracking-wider cursor-pointer"

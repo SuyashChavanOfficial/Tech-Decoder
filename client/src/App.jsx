@@ -70,7 +70,7 @@ function AppContent() {
           <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
           <Route path="/referral" element={<PageTransition><Referral /></PageTransition>} />
           <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
-          <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
+          {/* <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} /> */}
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
           <Route path="/book" element={<PageTransition><BookConsultation /></PageTransition>} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
