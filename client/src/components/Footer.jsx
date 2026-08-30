@@ -17,7 +17,7 @@ export default function Footer() {
         <div className="flex flex-col space-y-3">
           <span className="font-label-sm text-label-sm text-on-surface uppercase tracking-wider mb-2">Legal</span>
           <Link to="#" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors text-sm">Privacy Policy</Link>
-          <Link to="#" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors text-sm">Terms of Service</Link>
+          <Link to="/terms" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors text-sm">Terms & Conditions</Link>
           <Link to="#" className="font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors text-sm">Cookie Policy</Link>
         </div>
         <div className="flex flex-col space-y-3">

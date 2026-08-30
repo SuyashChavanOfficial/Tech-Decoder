@@ -208,10 +208,14 @@ export default function Referral() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <h3 className="font-headline-md text-headline-md text-on-surface mb-6 flex items-center gap-3">
+            <h3 className="font-headline-md text-headline-md text-on-surface mb-2 flex items-center gap-3">
               <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>history</span>
               Your Referral History
             </h3>
+            
+            <p className="font-body-md text-on-surface-variant text-xs text-justify mb-6 w-full">
+              <strong>Disclaimer:</strong> A referral is marked as <span className="text-yellow-400">Pending</span> until the referred user successfully books a project and completes 100% of the payment. Once verified by our team, the status will change to <span className="text-green-400">Successful</span> and you can then claim to withdraw the amount.
+            </p>
             
             <div className="glass-panel rounded-xl overflow-hidden border border-white/10">
               {fetchingHistory ? (
