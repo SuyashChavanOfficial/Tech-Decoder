@@ -20,6 +20,8 @@ import Login from './pages/Login';
 import BookConsultation from './pages/BookConsultation';
 import NotFound from './pages/NotFound';
 
+import AdminReferrals from './pages/AdminReferrals';
+
 // A premium page transition wrapper that feels like the content is "spreading out"
 const PageTransition = ({ children }) => {
   return (
@@ -73,6 +75,7 @@ function AppContent() {
           {/* <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} /> */}
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
           <Route path="/book" element={<PageTransition><BookConsultation /></PageTransition>} />
+          <Route path="/admin/referrals" element={<PageTransition><AdminReferrals /></PageTransition>} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </AnimatePresence>

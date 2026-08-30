@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema({
     ]
   },
   referrals: { type: Number, default: 0 },
+  referralCredits: { type: Number, default: 0 },
   referralCode: { type: String },
   uploadedFiles: { type: [fileSchema], default: [] },
   refreshToken: { type: String }

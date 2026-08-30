@@ -4,7 +4,7 @@ import Referral from '../models/Referral.js';
 
 export const createConsultation = async (req, res) => {
   try {
-    const { name, whatsapp, college, email, projectDescription, referralCode, plan } = req.body;
+    const { name, whatsapp, college, email, projectDescription, referralCode, referralOptIn, plan } = req.body;
 
     if (!name || !whatsapp || !college) {
       return res.status(400).json({ message: 'Name, whatsapp, and college are required.' });
@@ -25,11 +25,12 @@ export const createConsultation = async (req, res) => {
       email: email || '',
       projectDescription: projectDescription || '',
       referralCode: referralCode || '',
+      referralOptIn: referralOptIn || false,
       plan: plan || ''
     });
 
-    // Track this booking as a referral transaction if code is present
-    if (referralCode) {
+    // Track this booking as a referral transaction if code is present and user opted in
+    if (referralCode && referralOptIn) {
       try {
         const referrerUser = await User.findOne({ referralCode });
         const referredUser = await User.findOne({ email });
