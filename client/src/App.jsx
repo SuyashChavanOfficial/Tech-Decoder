@@ -21,6 +21,8 @@ import BookConsultation from './pages/BookConsultation';
 import NotFound from './pages/NotFound';
 
 import AdminReferrals from './pages/AdminReferrals';
+import AdminConsultations from './pages/AdminConsultations';
+import AdminConsultationDetails from './pages/AdminConsultationDetails';
 import Terms from './pages/Terms';
 
 // A premium page transition wrapper that feels like the content is "spreading out"
@@ -65,7 +67,7 @@ function AppContent() {
       <MouseGlow />
 
       <Navbar />
-      
+
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<PageTransition><Home /></PageTransition>} />
@@ -73,9 +75,11 @@ function AppContent() {
           <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
           <Route path="/referral" element={<PageTransition><Referral /></PageTransition>} />
           <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
-          {/* <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} /> */}
+          <Route path="/dashboard" element={<PageTransition><Dashboard /></PageTransition>} />
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
           <Route path="/book" element={<PageTransition><BookConsultation /></PageTransition>} />
+          <Route path="/admin/consultations" element={<PageTransition><AdminConsultations /></PageTransition>} />
+          <Route path="/admin/consultations/:id" element={<PageTransition><AdminConsultationDetails /></PageTransition>} />
           <Route path="/admin/referrals" element={<PageTransition><AdminReferrals /></PageTransition>} />
           <Route path="/terms" element={<PageTransition><Terms /></PageTransition>} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />

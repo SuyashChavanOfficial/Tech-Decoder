@@ -22,13 +22,21 @@ export default function Home() {
     visible: (custom) => ({
       opacity: 1,
       y: 0,
-      transition: { 
-        duration: 0.8, 
+      transition: {
+        duration: 0.8,
         ease: [0.16, 1, 0.3, 1],
-        delay: custom * 0.1 
+        delay: custom * 0.1
       }
     })
   };
+
+  // Dynamic experience: started September 24, 2025, auto-increments year on year
+  const experienceYears = (() => {
+    const start = new Date(2025, 8, 24); // September 24, 2025 (month is 0-indexed)
+    const now = new Date();
+    const months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
+    return Math.floor(months / 12) + 1; // 12 months → 2, 24 months → 3, etc.
+  })();
 
   return (
     <>
@@ -44,7 +52,7 @@ export default function Home() {
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop w-full relative z-10 grid md:grid-cols-2 gap-12 items-center">
             {/* Left Hero Column */}
             <div className="flex flex-col items-start space-y-8">
-              <motion.div 
+              <motion.div
                 custom={1}
                 initial="hidden"
                 animate="visible"
@@ -54,8 +62,8 @@ export default function Home() {
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 <span className="font-label-sm text-label-sm text-primary uppercase">Elite Mentorship Platform</span>
               </motion.div>
-              
-              <motion.h1 
+
+              <motion.h1
                 custom={2}
                 initial="hidden"
                 animate="visible"
@@ -67,7 +75,7 @@ export default function Home() {
                 <span className="text-gradient">Decode.</span>
               </motion.h1>
 
-              <motion.p 
+              <motion.p
                 custom={3}
                 initial="hidden"
                 animate="visible"
@@ -77,21 +85,21 @@ export default function Home() {
                 Master industry-level engineering through guided projects, real-world tech stacks, and expert mentorship. Become the architect of tomorrow's technology.
               </motion.p>
 
-              <motion.div 
+              <motion.div
                 custom={4}
                 initial="hidden"
                 animate="visible"
                 variants={fadeUp}
                 className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 w-full sm:w-auto"
               >
-                <button 
+                <button
                   onClick={() => navigate('/about')}
                   className="bg-primary text-on-primary px-8 py-4 rounded-xl font-label-sm text-label-sm uppercase tracking-wider glow-button btn-shimmer hover:opacity-90 transition-all flex justify-center items-center group cursor-pointer"
                 >
                   Explore Projects
                   <span className="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
                 </button>
-                <button 
+                <button
                   onClick={() => navigate('/book')}
                   className="glass-panel text-on-surface px-8 py-4 rounded-xl font-label-sm text-label-sm uppercase tracking-wider hover:bg-surface-container-high transition-colors flex justify-center items-center card-interactive cursor-pointer"
                 >
@@ -99,7 +107,7 @@ export default function Home() {
                 </button>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 custom={5}
                 initial="hidden"
                 animate="visible"
@@ -107,8 +115,8 @@ export default function Home() {
                 className="flex items-center space-x-8 pt-4 border-t border-white/10 w-full"
               >
                 <div>
-                  <p className="font-headline-md text-headline-md text-primary">100+</p>
-                  <p className="font-label-sm text-label-sm text-on-surface-variant uppercase">Projects Guided</p>
+                  <p className="font-headline-md text-headline-md text-primary">{experienceYears}+ Years of Industry Level</p>
+                  <p className="font-label-sm text-label-sm text-on-surface-variant uppercase">Project Building Experience</p>
                 </div>
                 <div className="w-px h-12 bg-white/10" />
                 <div>
@@ -120,7 +128,7 @@ export default function Home() {
 
             {/* Right Hero Column: Floating UI Cards */}
             <div className="relative hidden md:block h-[600px] w-full">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -136,13 +144,13 @@ export default function Home() {
                   <div className="h-2 bg-white/10 rounded-full w-5/6" />
                 </div>
                 <div className="mt-6 p-4 bg-surface-dim rounded-xl border border-white/5 font-mono text-xs text-primary/80">
-                  &gt; npm run build<br/>
-                  &gt; Deploying microservices...<br/>
+                  &gt; npm run build<br />
+                  &gt; Deploying microservices...<br />
                   &gt; All systems operational.
                 </div>
               </motion.div>
 
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 1, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
@@ -168,7 +176,7 @@ export default function Home() {
         {/* Advantage Section */}
         <section className="py-24 bg-surface-container-lowest relative border-y border-white/5">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-100px' }}
@@ -181,7 +189,7 @@ export default function Home() {
 
             <div className="grid md:grid-cols-3 gap-8">
               {/* Feature 1 */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -196,7 +204,7 @@ export default function Home() {
               </motion.div>
 
               {/* Feature 2 */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -211,7 +219,7 @@ export default function Home() {
               </motion.div>
 
               {/* Feature 3 */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -231,7 +239,7 @@ export default function Home() {
         {/* Domains Section */}
         <section className="py-24 relative" id="domains-section">
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -243,10 +251,10 @@ export default function Home() {
                 <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">Comprehensive mastery across the modern technological spectrum.</p>
               </div>
             </motion.div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {domains.map((dom, i) => (
-                <motion.div 
+                <motion.div
                   key={dom.name}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -267,7 +275,7 @@ export default function Home() {
         <section className="py-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-primary/5 pointer-events-none" />
           <div className="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10 text-center">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
@@ -276,7 +284,7 @@ export default function Home() {
             >
               <h2 className="font-headline-lg-mobile text-headline-lg-mobile md:font-display-xl md:text-display-xl text-on-surface mb-6">Ready to Build?</h2>
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-10">Stop watching tutorials. Start engineering real solutions with industry experts guiding your every commit.</p>
-              <button 
+              <button
                 onClick={() => navigate('/book')}
                 className="bg-primary text-on-primary px-10 py-5 rounded-xl font-label-sm text-label-sm uppercase tracking-wider glow-button btn-shimmer hover:opacity-90 transition-all text-lg cursor-pointer"
               >

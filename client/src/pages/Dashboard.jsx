@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import ReferralShare from '../components/ReferralShare';
+import AdminConsultations from './AdminConsultations';
 
 export default function Dashboard() {
   const { 
@@ -28,7 +29,7 @@ export default function Dashboard() {
   const fileInputRef = useRef(null);
   
   // Tab states
-  const activeTab = searchParams.get('tab') || 'overview';
+  const activeTab = searchParams.get('tab') || 'consultations';
   
   // Local UI states
   const [dragActive, setDragActive] = useState(false);
@@ -123,7 +124,13 @@ export default function Dashboard() {
     }
   }, [users, inspectedUser]);
 
-  if (loading || !user) {
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login', { state: { from: '/dashboard' } });
+    }
+  }, [loading, user, navigate]);
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
         <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
@@ -132,6 +139,26 @@ export default function Dashboard() {
           <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest">Loading Dashboard</p>
         </div>
       </div>
+    );
+  }
+
+  if (!user || user.role !== 'admin') {
+    return (
+      <main className="flex-grow pt-32 pb-24 px-margin-mobile flex items-center justify-center">
+        <div className="glass-panel p-8 rounded-2xl border border-white/10 text-center max-w-md">
+          <span className="material-symbols-outlined text-red-400 text-5xl mb-4">gpp_maybe</span>
+          <h2 className="text-on-surface font-headline-md mb-2">Access Denied</h2>
+          <p className="text-on-surface-variant text-body-sm mb-6">
+            The dashboard is currently accessible to administrators only.
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="px-6 py-2.5 bg-primary text-on-primary rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+          >
+            Return to Home
+          </button>
+        </div>
+      </main>
     );
   }
 
@@ -335,6 +362,18 @@ export default function Dashboard() {
 
             {user.role === 'admin' && (
               <>
+                <button 
+                  onClick={() => setActiveTab('consultations')}
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-left w-full cursor-pointer transition-all ${
+                    activeTab === 'consultations' 
+                      ? 'bg-surface-container text-primary font-bold border border-white/10' 
+                      : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: activeTab === 'consultations' ? "'FILL' 1" : "" }}>assignment</span>
+                  <span>Consultations</span>
+                </button>
+
                 <button 
                   onClick={() => setActiveTab('referrals')}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-left w-full cursor-pointer transition-all ${
@@ -696,6 +735,13 @@ export default function Dashboard() {
                       <p className="text-sm">No files uploaded yet. Drag a file to submit it for review.</p>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Tab: Consultations (Admin Only) */}
+              {activeTab === 'consultations' && user.role === 'admin' && (
+                <div className="w-full">
+                  <AdminConsultations isEmbedded={true} />
                 </div>
               )}
 

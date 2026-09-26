@@ -12,6 +12,19 @@ const consultationSchema = new mongoose.Schema({
     type: String, 
     enum: ['', 'Basic Project', 'Priority Project', 'Complete Project Package'],
     default: '' 
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'contacted', 'in_progress', 'completed', 'cancelled'],
+    default: 'pending'
+  },
+  adminNotes: {
+    type: String,
+    default: ''
+  },
+  is_deleted: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
