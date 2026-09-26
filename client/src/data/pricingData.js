@@ -1,7 +1,7 @@
 export const tiers = [
   {
     title: 'Basic Project',
-    price: '10,000',
+    price: '9,999',
     tag: 'Basic Project',
     desc: 'For students who need a complete project with explanation and source files.',
     features: [
@@ -16,7 +16,7 @@ export const tiers = [
   },
   {
     title: 'Priority Project',
-    price: '12,000',
+    price: '12,999',
     tag: 'Priority Project',
     desc: 'For students who want their project handled on priority with a defined delivery window.',
     features: [
@@ -32,7 +32,7 @@ export const tiers = [
   },
   {
     title: 'Complete Project Package',
-    price: '14,999',
+    price: '15,999',
     tag: 'Complete Project',
     desc: 'For students who want the project plus the documentation needed for submission.',
     features: [
