@@ -316,6 +316,42 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const getAllConsultations = async (params = {}) => {
+    try {
+      const res = await API.get('/consultations', { params });
+      return { success: true, data: res.data.data, stats: res.data.stats };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to fetch consultations.' };
+    }
+  };
+
+  const getConsultationById = async (id) => {
+    try {
+      const res = await API.get(`/consultations/${id}`);
+      return { success: true, data: res.data.data };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to fetch consultation details.' };
+    }
+  };
+
+  const updateConsultation = async (id, updateData) => {
+    try {
+      const res = await API.patch(`/consultations/${id}`, updateData);
+      return { success: true, data: res.data.data, message: res.data.message };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to update consultation.' };
+    }
+  };
+
+  const deleteConsultation = async (id) => {
+    try {
+      const res = await API.delete(`/consultations/${id}`);
+      return { success: true, data: res.data.data, message: res.data.message };
+    } catch (err) {
+      return { success: false, message: err.response?.data?.message || 'Failed to delete consultation.' };
+    }
+  };
+
   const totalModules = 12;
   const completedChecklistCount = user
     ? (user.checklist ? user.checklist.filter(c => c.checked).length : 0)
@@ -349,7 +385,11 @@ export const AuthProvider = ({ children }) => {
         getAllReferrals,
         updateReferralStatus,
         getAllUsers,
-        updateUserRole
+        updateUserRole,
+        getAllConsultations,
+        getConsultationById,
+        updateConsultation,
+        deleteConsultation
       }}
     >
       {children}

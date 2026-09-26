@@ -169,8 +169,47 @@ export default function Navbar() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute right-0 mt-2 w-48 rounded-xl glass-panel border border-white/10 py-2 shadow-2xl z-50 overflow-hidden"
+                      className="absolute right-0 mt-2 w-56 rounded-xl glass-panel border border-white/10 py-2 shadow-2xl z-50 overflow-hidden"
                     >
+                      <div className="px-4 py-2 border-b border-white/10">
+                        <div className="text-xs font-semibold text-on-surface truncate">{user.name}</div>
+                        <div className="text-[11px] text-on-surface-variant truncate">{user.email}</div>
+                        {user.role === 'admin' && (
+                          <span className="inline-block mt-1 text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">
+                            Admin
+                          </span>
+                        )}
+                      </div>
+
+                      {user.role === 'admin' && (
+                        <>
+                          <Link
+                            to="/dashboard"
+                            onClick={() => setProfileDropdownOpen(false)}
+                            className="w-full text-left px-4 py-2.5 text-sm text-on-surface hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[18px] text-primary">dashboard</span>
+                            <span>Dashboard</span>
+                          </Link>
+                          <Link
+                            to="/dashboard?tab=consultations"
+                            onClick={() => setProfileDropdownOpen(false)}
+                            className="w-full text-left px-4 py-2.5 text-sm text-on-surface hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[18px] text-primary">assignment</span>
+                            <span>Consultations</span>
+                          </Link>
+                          <Link
+                            to="/dashboard?tab=referrals"
+                            onClick={() => setProfileDropdownOpen(false)}
+                            className="w-full text-left px-4 py-2.5 text-sm text-on-surface hover:bg-white/5 transition-colors flex items-center space-x-2 cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-[18px] text-amber-400">group</span>
+                            <span>Referrals</span>
+                          </Link>
+                          <div className="border-t border-white/10 my-1" />
+                        </>
+                      )}
 
                       <button 
                         onClick={() => { setProfileDropdownOpen(false); logout(); navigate('/'); }}
@@ -264,9 +303,38 @@ export default function Navbar() {
                     <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full border border-white/10 object-cover" />
                     <div>
                       <div className="text-on-surface font-semibold">{user.name}</div>
-                      <div className="text-on-surface-variant text-xs">{user.domain}</div>
+                      <div className="text-on-surface-variant text-xs">{user.domain || user.role}</div>
                     </div>
                   </div>
+
+                  {user.role === 'admin' && (
+                    <div className="flex flex-col space-y-2 pb-2">
+                      <NavLink
+                        to="/dashboard"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="py-2 px-3 rounded-lg bg-surface-container-high/50 hover:bg-surface-container-high text-on-surface flex items-center space-x-2 text-sm"
+                      >
+                        <span className="material-symbols-outlined text-[18px] text-primary">dashboard</span>
+                        <span>Admin: Dashboard</span>
+                      </NavLink>
+                      <NavLink
+                        to="/dashboard?tab=consultations"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="py-2 px-3 rounded-lg bg-surface-container-high/50 hover:bg-surface-container-high text-on-surface flex items-center space-x-2 text-sm"
+                      >
+                        <span className="material-symbols-outlined text-[18px] text-primary">assignment</span>
+                        <span>Admin: Consultations</span>
+                      </NavLink>
+                      <NavLink
+                        to="/dashboard?tab=referrals"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="py-2 px-3 rounded-lg bg-surface-container-high/50 hover:bg-surface-container-high text-on-surface flex items-center space-x-2 text-sm"
+                      >
+                        <span className="material-symbols-outlined text-[18px] text-amber-400">group</span>
+                        <span>Admin: Referrals</span>
+                      </NavLink>
+                    </div>
+                  )}
 
                   <button 
                     onClick={() => { logout(); navigate('/'); setMobileMenuOpen(false); }}
