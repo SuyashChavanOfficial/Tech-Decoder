@@ -25,9 +25,9 @@ export default function BookConsultation() {
 
   const planOptions = [
     { value: '', label: '-- No Specific Plan --' },
-    { value: 'Basic Project', label: 'Basic Project - ₹10,000' },
-    { value: 'Priority Project', label: 'Priority Project - ₹12,000' },
-    { value: 'Complete Project Package', label: 'Complete Project Package - ₹14,999' }
+    { value: 'Basic Project', label: 'Basic Project - ₹9,999' },
+    { value: 'Priority Project', label: 'Priority Project - ₹12,999' },
+    { value: 'Complete Project Package', label: 'Complete Project Package - ₹15,999' }
   ];
 
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function BookConsultation() {
         className="w-full max-w-lg relative z-10"
       >
         <InteractiveGlowCard className="p-8 md:p-10 w-full flex flex-col gap-8 shadow-2xl">
-          
+
           <AnimatePresence mode="wait">
             {submitted ? (
               <motion.div
@@ -98,7 +98,7 @@ export default function BookConsultation() {
                 className="flex flex-col items-center py-10 text-center"
               >
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
-                  <span 
+                  <span
                     className="material-symbols-outlined text-primary text-5xl"
                     style={{ fontVariationSettings: "'FILL' 1" }}
                   >
@@ -134,7 +134,7 @@ export default function BookConsultation() {
                   <div className="flex flex-col gap-1.5 mb-2">
                     <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Selected Plan</label>
                     <div className="relative" ref={dropdownRef}>
-                      <div 
+                      <div
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         className="bg-surface-container-low border border-white/10 rounded-lg px-4 py-3 text-on-surface font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all w-full cursor-pointer flex items-center justify-between"
                       >
@@ -152,7 +152,7 @@ export default function BookConsultation() {
                           expand_more
                         </span>
                       </div>
-                      
+
                       <AnimatePresence>
                         {isDropdownOpen && (
                           <motion.div
@@ -190,12 +190,12 @@ export default function BookConsultation() {
 
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="name" className="font-label-sm text-label-sm text-on-surface-variant uppercase">Full Name</label>
-                    <input 
+                    <input
                       required
                       id="name"
                       name="name"
                       autoComplete="name"
-                      type="text" 
+                      type="text"
                       placeholder="Ada Lovelace"
                       value={formData.name}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -205,12 +205,12 @@ export default function BookConsultation() {
 
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="whatsapp" className="font-label-sm text-label-sm text-on-surface-variant uppercase">WhatsApp Number</label>
-                    <input 
+                    <input
                       required
                       id="whatsapp"
                       name="whatsapp"
                       autoComplete="tel"
-                      type="tel" 
+                      type="tel"
                       placeholder="919876543210"
                       maxLength={12}
                       pattern="\d{1,12}"
@@ -227,12 +227,12 @@ export default function BookConsultation() {
 
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="college" className="font-label-sm text-label-sm text-on-surface-variant uppercase">College / University</label>
-                    <input 
+                    <input
                       required
                       id="college"
                       name="college"
                       autoComplete="organization"
-                      type="text" 
+                      type="text"
                       placeholder="IIT Bombay"
                       value={formData.college}
                       onChange={e => setFormData({ ...formData, college: e.target.value })}
@@ -242,11 +242,11 @@ export default function BookConsultation() {
 
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="email" className="font-label-sm text-label-sm text-on-surface-variant uppercase">Email Address (Optional)</label>
-                    <input 
+                    <input
                       id="email"
                       name="email"
                       autoComplete="email"
-                      type="email" 
+                      type="email"
                       placeholder="ada@example.com"
                       value={formData.email}
                       onChange={e => setFormData({ ...formData, email: e.target.value })}
@@ -256,7 +256,7 @@ export default function BookConsultation() {
 
                   <div className="flex flex-col gap-1.5">
                     <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Short Project Description (Optional)</label>
-                    <textarea 
+                    <textarea
                       rows="3"
                       placeholder="Briefly describe your final year project idea or guidance needed..."
                       value={formData.projectDescription}
@@ -266,7 +266,7 @@ export default function BookConsultation() {
                   </div>
 
                   <div className="flex items-center gap-3 py-1">
-                    <input 
+                    <input
                       type="checkbox"
                       id="hasReferralPage"
                       checked={formData.hasReferral}
@@ -289,9 +289,9 @@ export default function BookConsultation() {
                       >
                         <div className="flex flex-col gap-1.5 pt-1">
                           <label className="font-label-sm text-label-sm text-on-surface-variant uppercase">Referral Code</label>
-                          <input 
+                          <input
                             required={formData.hasReferral}
-                            type="text" 
+                            type="text"
                             placeholder="ARCH-XXXX-XXXX"
                             value={formData.referralCode}
                             onChange={e => setFormData({ ...formData, referralCode: e.target.value.toUpperCase() })}
@@ -302,7 +302,7 @@ export default function BookConsultation() {
                     )}
                   </AnimatePresence>
 
-                  <button 
+                  <button
                     type="submit"
                     className="w-full bg-primary text-on-primary py-4 rounded-lg font-label-sm text-label-sm uppercase tracking-wider glow-button btn-shimmer mt-4 hover:opacity-90 transition-all cursor-pointer"
                   >
